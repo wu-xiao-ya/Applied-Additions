@@ -64,7 +64,7 @@ dependencies {
     //     transitive = false
     // }
 
-    modImplementation "com.github.FormlessDragon:Applied-Energistics-2-Supergiant:v1.0.5:dev"
+    modImplementation "com.github.FormlessDragon:Applied-Energistics-2-Supergiant:v1.0.9"
     modImplementation "curse.maven:had-enough-items-557549:7938914"
     modCompileOnly 'curse.maven:mouse-tweaks-unofficial-461660:5876158'
     //modImplementation 'software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31'

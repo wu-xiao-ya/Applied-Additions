@@ -1,5 +1,6 @@
 package com.formlesslab.ae2additions.client.render;
 
+import ae2.core.registries.CraftingUnitClientRegistry;
 import com.formlesslab.ae2additions.Reference;
 import com.formlesslab.ae2additions.client.model.AAECraftingUnitModelProvider;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -20,6 +22,13 @@ public final class QuantumComputerModelOverride {
     public static final QuantumComputerModelOverride INSTANCE = new QuantumComputerModelOverride();
 
     private QuantumComputerModelOverride() {
+    }
+
+    @SubscribeEvent
+    public void onModelRegistry(ModelRegistryEvent event) {
+        CraftingUnitClientRegistry.getInstance().registerModelProvider(
+            AAECraftingUnitType.MODEL_PROVIDER_ID,
+            AAECraftingUnitModelProvider.FORMED_MODEL_PROVIDER);
     }
 
     @SubscribeEvent

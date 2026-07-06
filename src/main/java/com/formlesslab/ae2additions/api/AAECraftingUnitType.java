@@ -1,9 +1,13 @@
 package com.formlesslab.ae2additions.api;
 
+import ae2.api.crafting.cpu.CraftingUnitVisualDefinition;
+import ae2.api.crafting.cpu.CraftingUnitVisualKind;
 import ae2.block.crafting.ICraftingUnitType;
+import com.formlesslab.ae2additions.Reference;
 import com.formlesslab.ae2additions.init.QuantumConfig;
 import com.formlesslab.ae2additions.init.QuantumContent;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 
 public enum AAECraftingUnitType implements ICraftingUnitType {
     QUANTUM_UNIT("quantum_unit", 0),
@@ -15,12 +19,28 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
     QUANTUM_MULTI_THREADER("quantum_multi_threader", 0),
     QUANTUM_STRUCTURE("quantum_structure", 0);
 
+    private static final ResourceLocation FAMILY_ID = quantumComputerId();
+    public static final ResourceLocation MODEL_PROVIDER_ID = FAMILY_ID;
+
     private final String registryName;
     private final int storageMb;
+    private final ResourceLocation id;
+    private final CraftingUnitVisualDefinition visualDefinition;
 
     AAECraftingUnitType(String registryName, int storageMb) {
         this.registryName = registryName;
         this.storageMb = storageMb;
+        this.id = new ResourceLocation(Reference.MOD_ID, registryName);
+        this.visualDefinition = CraftingUnitVisualDefinition.builder(
+            CraftingUnitVisualKind.CUSTOM,
+            new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName),
+            new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName + "_formed"))
+            .formedModelProviderId(quantumComputerId())
+            .build();
+    }
+
+    private static ResourceLocation quantumComputerId() {
+        return new ResourceLocation(Reference.MOD_ID, "quantum_computer");
     }
 
     public String getRegistryName() {
@@ -51,6 +71,21 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
 
     public boolean isInternalOnly() {
         return this != QUANTUM_STRUCTURE;
+    }
+
+    @Override
+    public ResourceLocation id() {
+        return this.id;
+    }
+
+    @Override
+    public CraftingUnitVisualDefinition getVisualDefinition() {
+        return this.visualDefinition;
+    }
+
+    @Override
+    public ResourceLocation getFamilyId() {
+        return FAMILY_ID;
     }
 
     @Override

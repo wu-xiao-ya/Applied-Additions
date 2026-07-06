@@ -196,7 +196,13 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
                     updatedMode,
                     cpu.currentJob(),
                     cpu.progress(),
-                    cpu.elapsedTimeNanos()));
+                    cpu.elapsedTimeNanos(),
+                    cpu.unfocusedBackgroundIcon(),
+                    cpu.focusedBackgroundIcon(),
+                    cpu.dimensionId(),
+                    cpu.corePos(),
+                    cpu.boundsMin(),
+                    cpu.boundsMax()));
             } else {
                 updatedEntries.add(cpu);
             }

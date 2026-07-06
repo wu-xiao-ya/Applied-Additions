@@ -1,5 +1,7 @@
 package com.formlesslab.ae2additions.client.model;
 
+import ae2.api.client.crafting.ICraftingUnitModelProvider;
+import ae2.api.crafting.cpu.ICraftingUnitDefinition;
 import com.formlesslab.ae2additions.Reference;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
 import java.util.Arrays;
@@ -12,6 +14,10 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 
 public class AAECraftingUnitModelProvider {
+    public static final ICraftingUnitModelProvider FORMED_MODEL_PROVIDER =
+        (definition, format, textureGetter) ->
+            new AAECraftingUnitModelProvider(resolveType(definition)).bake(format, textureGetter);
+
     protected static final ResourceLocation STRUCTURE_FORMED_FACE = texture("quantum_structure_formed_face");
     protected static final ResourceLocation STRUCTURE_FORMED_SIDES = texture("quantum_structure_formed_sides");
     protected static final ResourceLocation STRUCTURE_ANIMATION_SIDES = texture("quantum_structure_powered_sides");
@@ -62,5 +68,19 @@ public class AAECraftingUnitModelProvider {
 
     private static ResourceLocation texture(String name) {
         return new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/" + name);
+    }
+
+    private static AAECraftingUnitType resolveType(ICraftingUnitDefinition definition) {
+        if (definition instanceof AAECraftingUnitType type) {
+            return type;
+        }
+
+        ResourceLocation id = definition.id();
+        for (AAECraftingUnitType type : AAECraftingUnitType.values()) {
+            if (type.id().equals(id)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unsupported crafting unit definition: " + id);
     }
 }
