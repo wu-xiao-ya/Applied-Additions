@@ -35,6 +35,10 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
             CraftingUnitVisualKind.CUSTOM,
             new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName),
             new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName + "_formed"))
+            .ringTextures(
+                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_face"),
+                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides"),
+                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides"))
             .formedModelProviderId(quantumComputerId())
             .build();
     }

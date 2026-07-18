@@ -9,7 +9,7 @@
     "4": "ae2additions:block/reaction_chamber/reaction_chamber_details",
     "5": "ae2additions:block/reaction_chamber/reaction_chamber_sides",
     "6": "ae2additions:block/reaction_chamber/reaction_chamber_rod",
-    "particle": "ae2additions:block/reaction_chamberk/reaction_chamber_sides"
+    "particle": "ae2additions:block/reaction_chamber/reaction_chamber_sides"
   },
   "elements": [
     {
