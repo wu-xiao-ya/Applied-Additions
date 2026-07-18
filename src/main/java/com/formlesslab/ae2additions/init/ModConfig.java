@@ -15,6 +15,7 @@ public final class ModConfig {
     public static int quantumComputerDataEntanglerMultiplication = 4;
     public static boolean enableQuantumComputerEffects = true;
     public static int assemblerMatrixMaxSize = 6;
+    public static boolean enableCraftingJobSystemNotifications = true;
 
     private ModConfig() {
     }
@@ -91,6 +92,11 @@ public final class ModConfig {
                 3,
                 16,
                 "Maximum dimensions of the Assembler Matrix multiblock.");
+            enableCraftingJobSystemNotifications = config.getBoolean(
+                "enableCraftingJobSystemNotifications",
+                "client",
+                true,
+                "Send a Windows system notification when an AE2 crafting job finishes while the game is unfocused.");
         } finally {
             if (config.hasChanged()) {
                 config.save();

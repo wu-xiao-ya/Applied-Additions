@@ -30,6 +30,8 @@ repositories {
 
 dependencies {
     compileOnly "com.cleanroommc:sponge-mixin:0.20.13+mixin.0.8.7"
+    // Included by the Minecraft 1.12 runtime; used for in-process Windows shell notifications.
+    compileOnly "net.java.dev.jna:jna:4.4.0"
     if (enable_lwjglx.toBoolean()) {
         compileOnly "com.cleanroommc:lwjglx:1.0.0"
     }

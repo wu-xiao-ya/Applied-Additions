@@ -136,3 +136,5 @@ fluid.ae2additions.quantum_infusion=量子灌注液
 gui.ae2additions.reaction_chamber=反应仓
 gui.ae2additions.jei.energy=消耗能量: %dk FE
 itemGroup.ae2additions=AE2 Additions
+notification.ae2additions.crafting_finished.title=自动合成完毕！
+notification.ae2additions.crafting_finished.body=%s %s

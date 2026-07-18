@@ -12,6 +12,7 @@
   ],
   "client": [
     "MixinGuiCraftingStatus",
+    "MixinPendingCraftingJobs",
     "WidgetContainerAccessor"
   ]
 }

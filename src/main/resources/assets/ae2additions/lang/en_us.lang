@@ -136,3 +136,5 @@ fluid.ae2additions.quantum_infusion=Quantum Infusion
 gui.ae2additions.reaction_chamber=Reaction Chamber
 gui.ae2additions.jei.energy=Used Power: %dk FE
 itemGroup.ae2additions=AE2 Additions
+notification.ae2additions.crafting_finished.title=Auto-Crafting Complete
+notification.ae2additions.crafting_finished.body=%s %s
