@@ -1,6 +1,5 @@
 package com.formlesslab.ae2additions.me.cluster;
 
-import ae2.api.config.Actionable;
 import ae2.api.config.CpuSelectionMode;
 import ae2.api.config.Settings;
 import ae2.api.networking.IGrid;
@@ -9,10 +8,8 @@ import ae2.api.networking.crafting.ICraftingCPU;
 import ae2.api.networking.crafting.ICraftingPlan;
 import ae2.api.networking.crafting.ICraftingRequester;
 import ae2.api.networking.crafting.ICraftingSubmitResult;
-import ae2.api.networking.energy.IEnergyService;
 import ae2.api.networking.events.GridCraftingCpuChange;
 import ae2.api.networking.security.IActionSource;
-import ae2.api.stacks.AEKey;
 import ae2.api.stacks.GenericStack;
 import ae2.api.util.IConfigManager;
 import ae2.crafting.execution.CraftingSubmitResult;
@@ -20,7 +17,6 @@ import ae2.crafting.inv.ListCraftingInventory;
 import ae2.me.cluster.IAECluster;
 import ae2.me.cluster.MBCalculator;
 import ae2.me.helpers.MachineSource;
-import ae2.me.service.CraftingService;
 import ae2.tile.crafting.TileCraftingMonitor;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -30,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -39,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class AdvCraftingCPUCluster implements IAECluster {
     private static int nextGuiClusterId = 1;
@@ -156,46 +152,12 @@ public class AdvCraftingCPUCluster implements IAECluster {
 
     @Override
     public boolean isDestroyed() {
-        return false;
+        return this.destroyed;
     }
 
     @Override
     public Iterator<? extends TileEntity> getBlockEntities() {
         return this.quantumBlockEntities.iterator();
-    }
-
-    public long insertIntoActiveCpus(AEKey what, long amount, Actionable type) {
-        long inserted = 0;
-        for (AdvCraftingCPU cpu : this.getActiveCPUs()) {
-            if (inserted >= amount) {
-                break;
-            }
-            inserted += cpu.craftingLogic.insert(what, amount - inserted, type);
-        }
-        return inserted;
-    }
-
-    public long getRequestedAmount(AEKey what) {
-        long requested = 0;
-        for (AdvCraftingCPU cpu : this.getActiveCPUs()) {
-            requested += cpu.craftingLogic.getWaitingFor(what);
-        }
-        return requested;
-    }
-
-    public void collectWaitingFor(Set<AEKey> waitingFor) {
-        for (AdvCraftingCPU cpu : this.getActiveCPUs()) {
-            cpu.craftingLogic.getAllWaitingFor(waitingFor);
-        }
-    }
-
-    public long tickActiveCpus(IEnergyService energy, CraftingService craftingService) {
-        long latestChange = 0;
-        for (AdvCraftingCPU cpu : this.getActiveCPUs()) {
-            cpu.craftingLogic.tickCraftingLogic(energy, craftingService);
-            latestChange = Math.max(latestChange, cpu.craftingLogic.getLastModifiedOnTick());
-        }
-        return latestChange;
     }
 
     public void cancelJobs() {
@@ -381,6 +343,28 @@ public class AdvCraftingCPUCluster implements IAECluster {
         return this.configManager;
     }
 
+    public boolean rename(@Nullable String name) {
+        TileAdvCraftingBlock core = this.getCore();
+        if (core == null) {
+            return false;
+        }
+
+        String normalizedName = name == null || name.isEmpty() ? null : name;
+        for (TileAdvCraftingBlock tile : this.quantumBlockEntities) {
+            tile.setCustomName(null);
+            tile.onCustomNameChanged();
+        }
+        if (normalizedName != null) {
+            core.setCustomName(normalizedName);
+            core.onCustomNameChanged();
+        }
+
+        this.updateName();
+        this.markDirty();
+        this.postCpuChange();
+        return true;
+    }
+
     public List<ListCraftingInventory> getInventories() {
         List<ListCraftingInventory> inventories = new ArrayList<>();
         for (AdvCraftingCPU cpu : this.activeCpus.values()) {
@@ -411,6 +395,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
         }
         if (!remove.isEmpty()) {
             this.recalculateRemainingStorage();
+            this.postCpuChange();
         }
         return cpus;
     }

@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.function.IntSupplier;
 
 public class AdvCpuSelectionList implements ICompositeWidget {
+    private static final int HEADER_HEIGHT = 31;
+    private static final int FOOTER_HEIGHT = 7;
+    private static final int SCROLLBAR_X = 86;
+    private static final int LIST_CONTENT_X = 17;
 
     private final Blitter background;
     private final Blitter buttonBg;
@@ -47,8 +51,8 @@ public class AdvCpuSelectionList implements ICompositeWidget {
         this.scrollbar = scrollbar;
         this.visibleRowsSupplier = visibleRowsSupplier;
         this.background = style.getImage("cpuList");
-        this.buttonBg = style.getImage("cpuListButton");
-        this.buttonBgSelected = style.getImage("cpuListButtonSelected");
+        this.buttonBg = Icon.CRAFTING_CPU_LIST_ROW_BACKGROUND.getBlitter();
+        this.buttonBgSelected = Icon.CRAFTING_CPU_LIST_ROW_BACKGROUND_FOCUSED.getBlitter();
         this.textColor = style.getColor(PaletteColor.DEFAULT_TEXT_COLOR);
         this.selectedColor = style.getColor(PaletteColor.SELECTION_COLOR).toARGB();
         this.scrollbar.setCaptureMouseWheel(false);
@@ -130,7 +134,7 @@ public class AdvCpuSelectionList implements ICompositeWidget {
     @Override
     public void updateBeforeRender() {
         int rows = getVisibleRows();
-        this.bounds.height = 19 + rows * getButtonRowHeight() + 7;
+        this.bounds.height = HEADER_HEIGHT + rows * getButtonRowHeight() + FOOTER_HEIGHT;
         this.scrollbar.setHeight(Math.max(1, rows * getButtonRowHeight() - 1));
         int hiddenRows = Math.max(0, this.menu.cpuList.cpus().size() - rows);
         this.scrollbar.setRange(0, hiddenRows, Math.max(1, rows / 3));
@@ -142,8 +146,8 @@ public class AdvCpuSelectionList implements ICompositeWidget {
         int y = screenBounds.y + this.bounds.y;
         drawBackground(x, y);
 
-        x += 8;
-        y += 19;
+        x += LIST_CONTENT_X;
+        y += HEADER_HEIGHT;
 
         int from = clamp(this.scrollbar.getCurrentScroll(), 0, this.menu.cpuList.cpus().size());
         int to = clamp(this.scrollbar.getCurrentScroll() + getVisibleRows(), 0, this.menu.cpuList.cpus().size());
@@ -195,12 +199,12 @@ public class AdvCpuSelectionList implements ICompositeWidget {
     }
 
     private QuantumComputerEntry hitTestCpu(Point mousePos) {
-        int relX = mousePos.x() - this.bounds.x - 8;
+        int relX = mousePos.x() - this.bounds.x - LIST_CONTENT_X;
         if (relX < 0 || relX >= this.buttonBg.getSrcWidth()) {
             return null;
         }
 
-        int relY = mousePos.y() - this.bounds.y - 19;
+        int relY = mousePos.y() - this.bounds.y - HEADER_HEIGHT;
         int rowHeight = getButtonRowHeight();
         int buttonIdx = this.scrollbar.getCurrentScroll() + relY / rowHeight;
         if (relY < 0 || relY >= getVisibleRows() * rowHeight || relY % rowHeight == this.buttonBg.getSrcHeight()) {
@@ -215,34 +219,46 @@ public class AdvCpuSelectionList implements ICompositeWidget {
     }
 
     private void drawBackground(int x, int y) {
-        this.background.copy().src(0, 0, 77, 19).dest(x, y).blit();
-        drawScrollbarBackground(x + 77, y);
+        this.background.copy().src(0, 0, SCROLLBAR_X, HEADER_HEIGHT).dest(x, y).blit();
+        drawScrollbarBackground(x + SCROLLBAR_X, y);
 
-        int rowY = y + 19;
+        int rowY = y + HEADER_HEIGHT;
         int visibleRows = getVisibleRows();
         int rowHeight = getButtonRowHeight();
-        int middleSourceY = 19 + rowHeight;
-        int lastSourceY = this.background.getSrcHeight() - 7 - rowHeight;
+        int middleSourceY = HEADER_HEIGHT + rowHeight;
+        int lastSourceY = this.background.getSrcHeight() - FOOTER_HEIGHT - rowHeight;
 
         for (int i = 0; i < visibleRows; i++) {
-            int sourceY = i == 0 ? 19 : (i == visibleRows - 1 ? lastSourceY : middleSourceY);
-            this.background.copy().src(0, sourceY, 77, rowHeight).dest(x, rowY).blit();
+            int sourceY = i == 0 ? HEADER_HEIGHT : (i == visibleRows - 1 ? lastSourceY : middleSourceY);
+            this.background.copy().src(0, sourceY, SCROLLBAR_X, rowHeight).dest(x, rowY).blit();
             rowY += rowHeight;
         }
 
-        this.background.copy().src(0, this.background.getSrcHeight() - 7, 77, 7).dest(x, rowY).blit();
-        this.background.copy().src(77, this.background.getSrcHeight() - 7, 17, 7).dest(x + 77, rowY).blit();
+        this.background.copy()
+            .src(0, this.background.getSrcHeight() - FOOTER_HEIGHT, SCROLLBAR_X, FOOTER_HEIGHT)
+            .dest(x, rowY)
+            .blit();
+        this.background.copy()
+            .src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT, 17, FOOTER_HEIGHT)
+            .dest(x + SCROLLBAR_X, rowY)
+            .blit();
     }
 
     private void drawScrollbarBackground(int x, int y) {
-        this.background.copy().src(77, 0, 17, 19).dest(x, y).blit();
-        int rowY = y + 19;
+        this.background.copy().src(SCROLLBAR_X, 0, 17, HEADER_HEIGHT).dest(x, y).blit();
+        int rowY = y + HEADER_HEIGHT;
         int rowHeight = getButtonRowHeight();
         for (int i = 0; i < getVisibleRows(); i++) {
-            this.background.copy().src(77, 19 + rowHeight, 17, rowHeight).dest(x, rowY).blit();
+            this.background.copy()
+                .src(SCROLLBAR_X, HEADER_HEIGHT + rowHeight, 17, rowHeight)
+                .dest(x, rowY)
+                .blit();
             rowY += rowHeight;
         }
-        this.background.copy().src(77, this.background.getSrcHeight() - 8, 17, 1).dest(x, rowY - 1).blit();
+        this.background.copy()
+            .src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT - 1, 17, 1)
+            .dest(x, rowY - 1)
+            .blit();
     }
 
     private static void drawScaledString(String text, int x, int y, int color) {

@@ -4,23 +4,27 @@ import ae2.api.config.CpuSelectionMode;
 import ae2.api.networking.IGrid;
 import ae2.api.networking.IGridNode;
 import ae2.api.networking.crafting.CraftingJobStatus;
+import ae2.api.networking.crafting.ICraftingPlan;
+import ae2.api.networking.crafting.ICraftingRequester;
+import ae2.api.networking.crafting.ICraftingSubmitResult;
 import ae2.api.networking.security.IActionSource;
 import ae2.api.stacks.GenericStack;
+import ae2.api.util.IConfigManager;
 import ae2.crafting.execution.ElapsedTimeTracker;
 import ae2.crafting.inv.ListCraftingInventory;
 import ae2.me.cluster.implementations.CraftingCPUCluster;
-import com.formlesslab.ae2additions.me.logic.AdvCraftingCPULogic;
+import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class AdvCraftingCPU extends CraftingCPUCluster {
     final UUID uniqueId;
     final long bytes;
     private final AdvCraftingCPUCluster parent;
-    public final AdvCraftingCPULogic craftingLogic = new AdvCraftingCPULogic(this);
     private boolean markedForDeletion;
 
     public AdvCraftingCPU(AdvCraftingCPUCluster parent, UUID uniqueId, long bytes) {
@@ -42,6 +46,12 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
     @Override
     public BlockPos getBoundsMax() {
         return this.parent.getBoundsMax();
+    }
+
+    @Override
+    public BlockPos getCorePos() {
+        TileAdvCraftingBlock core = this.parent.getCore();
+        return core == null ? null : core.getPos();
     }
 
     @Override
@@ -69,6 +79,19 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
     }
 
     @Override
+    public ICraftingSubmitResult submitJob(
+        IGrid grid,
+        ICraftingPlan plan,
+        IActionSource src,
+        @Nullable ICraftingRequester requester
+    ) {
+        if (this.uniqueId == null) {
+            return this.parent.submitJob(grid, plan, src, requester);
+        }
+        return this.craftingLogic.trySubmitJob(grid, plan, src, requester);
+    }
+
+    @Override
     public long getAvailableStorage() {
         return this.bytes;
     }
@@ -89,6 +112,16 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
     }
 
     @Override
+    public IConfigManager getConfigManager() {
+        return this.parent.getConfigManager();
+    }
+
+    @Override
+    public boolean rename(@Nullable String name) {
+        return this.parent.rename(name);
+    }
+
+    @Override
     public void markDirty() {
         this.parent.markDirty();
     }
@@ -96,6 +129,11 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
     @Override
     public boolean isActive() {
         return this.parent.isActive();
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return this.parent.isDestroyed();
     }
 
     @Override

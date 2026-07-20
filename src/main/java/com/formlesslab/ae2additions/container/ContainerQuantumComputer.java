@@ -58,6 +58,13 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
         }
         this.registerClientAction(ACTION_SELECT_CPU, Integer.class, this::selectCpu);
         this.registerClientAction(ACTION_CYCLE_SELECTION_MODE, Integer.class, this::cycleSelectionMode);
+
+        if (this.host != null) {
+            List<? extends ICraftingCPU> cpus = this.host.getQuantumCpus();
+            if (cpus != null && !cpus.isEmpty()) {
+                this.setCPU(cpus.getFirst());
+            }
+        }
     }
 
     @Override

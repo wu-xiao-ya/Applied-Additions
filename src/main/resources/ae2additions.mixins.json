@@ -6,13 +6,11 @@
   "target": "@env(MOD)",
   "refmap": "ae2additions.refmap.json",
   "mixins": [
-    "MixinCraftingCPUMenu",
     "MixinCraftingService",
     "MixinCraftingStatusMenu"
   ],
   "client": [
-    "MixinGuiCraftingStatus",
-    "MixinPendingCraftingJobs",
-    "WidgetContainerAccessor"
+    "MixinCPUSelectionList",
+    "MixinPendingCraftingJobs"
   ]
 }

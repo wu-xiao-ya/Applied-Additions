@@ -1,12 +1,9 @@
 package com.formlesslab.ae2additions.mixin;
 
-import ae2.api.config.CpuSelectionMode;
-import ae2.api.config.Settings;
 import ae2.api.networking.crafting.ICraftingCPU;
 import ae2.container.guisync.GuiSync;
 import ae2.container.implementations.ContainerCraftingCPU;
 import ae2.container.implementations.ContainerCraftingStatus;
-import ae2.util.EnumCycler;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuGrouping;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadata;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadataList;
@@ -40,12 +37,6 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
     @Shadow
     @Final
     private WeakHashMap<ICraftingCPU, Integer> cpuSerialMap;
-
-    @Shadow
-    private int selectedCpuSerial;
-
-    @Shadow
-    private int lastUpdate;
 
     @GuiSync(10)
     @Unique
@@ -92,39 +83,6 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
         this.cpuList = new ContainerCraftingStatus.CraftingCpuList(orderedEntries);
     }
 
-    @Inject(method = "cycleCpuMode(IZ)V", at = @At("HEAD"), cancellable = true)
-    private void ae2additions$cycleQuantumCpuMode(int serial, boolean backwards, CallbackInfo ci) {
-        if (!this.isServerSide() || serial <= 0) {
-            return;
-        }
-
-        AdvCraftingCPU quantumCpu = ae2additions$findQuantumCpuBySerial(serial);
-        if (quantumCpu == null) {
-            return;
-        }
-
-        AdvCraftingCPUCluster cluster = quantumCpu.getParent();
-        if (cluster == null) {
-            return;
-        }
-
-        CpuSelectionMode updatedMode = EnumCycler.rotateEnum(
-            cluster.getSelectionMode(),
-            backwards,
-            Settings.CPU_SELECTION_MODE.getValues());
-        cluster.getConfigManager().putSetting(Settings.CPU_SELECTION_MODE, updatedMode);
-
-        int clusterId = cluster.getGuiClusterId();
-        Map<Integer, CraftingStatusCpuMetadata> metadataBySerial = ae2additions$createMetadataBySerial();
-        this.ae2additions$cpuMetadata = new CraftingStatusCpuMetadataList(List.copyOf(metadataBySerial.values()));
-        if (ae2additions$serialBelongsToQuantumCluster(this.selectedCpuSerial, clusterId, metadataBySerial)) {
-            this.schedulingMode = updatedMode;
-        }
-        ae2additions$updateQuantumCpuModes(clusterId, updatedMode, metadataBySerial);
-        this.lastUpdate = 0;
-        ci.cancel();
-    }
-
     @Override
     public CraftingStatusCpuMetadataList ae2additions$getCpuMetadata() {
         return this.ae2additions$cpuMetadata;
@@ -156,58 +114,4 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
         return metadataBySerial;
     }
 
-    @Unique
-    private AdvCraftingCPU ae2additions$findQuantumCpuBySerial(int serial) {
-        for (ICraftingCPU cpu : this.lastCpuSet) {
-            if (this.cpuSerialMap.getOrDefault(cpu, -1) == serial && cpu instanceof AdvCraftingCPU quantumCpu) {
-                return quantumCpu;
-            }
-        }
-        return null;
-    }
-
-    @Unique
-    private boolean ae2additions$serialBelongsToQuantumCluster(
-        int serial,
-        int clusterId,
-        Map<Integer, CraftingStatusCpuMetadata> metadataBySerial
-    ) {
-        CraftingStatusCpuMetadata metadata = metadataBySerial.get(serial);
-        return metadata != null && metadata.clusterId() == clusterId;
-    }
-
-    @Unique
-    private void ae2additions$updateQuantumCpuModes(
-        int clusterId,
-        CpuSelectionMode updatedMode,
-        Map<Integer, CraftingStatusCpuMetadata> metadataBySerial
-    ) {
-        ObjectArrayList<ContainerCraftingStatus.CraftingCpuListEntry> updatedEntries =
-            new ObjectArrayList<>(this.cpuList.cpus().size());
-
-        for (ContainerCraftingStatus.CraftingCpuListEntry cpu : this.cpuList.cpus()) {
-            CraftingStatusCpuMetadata metadata = metadataBySerial.get(cpu.serial());
-            if (metadata != null && metadata.clusterId() == clusterId) {
-                updatedEntries.add(new ContainerCraftingStatus.CraftingCpuListEntry(
-                    cpu.serial(),
-                    cpu.storage(),
-                    cpu.coProcessors(),
-                    cpu.name(),
-                    updatedMode,
-                    cpu.currentJob(),
-                    cpu.progress(),
-                    cpu.elapsedTimeNanos(),
-                    cpu.unfocusedBackgroundIcon(),
-                    cpu.focusedBackgroundIcon(),
-                    cpu.dimensionId(),
-                    cpu.corePos(),
-                    cpu.boundsMin(),
-                    cpu.boundsMax()));
-            } else {
-                updatedEntries.add(cpu);
-            }
-        }
-
-        this.cpuList = new ContainerCraftingStatus.CraftingCpuList(updatedEntries);
-    }
 }
