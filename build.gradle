@@ -103,11 +103,6 @@ dependencies {
     }
 }
 
-configurations {
-    testImplementation.extendsFrom(modImplementation)
-    testRuntimeOnly.extendsFrom(modRuntimeOnly)
-}
-
 apply from: 'gradle/scripts/dependencies.gradle'
 
 processResources {
@@ -135,6 +130,10 @@ sourceSets {
                 property('mod_logo_path', mod_logo_path)
             }
         }
+    }
+    test {
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
     }
 }
 
