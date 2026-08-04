@@ -103,6 +103,11 @@ dependencies {
     }
 }
 
+configurations {
+    testImplementation.extendsFrom(modImplementation)
+    testRuntimeOnly.extendsFrom(modRuntimeOnly)
+}
+
 apply from: 'gradle/scripts/dependencies.gradle'
 
 processResources {
