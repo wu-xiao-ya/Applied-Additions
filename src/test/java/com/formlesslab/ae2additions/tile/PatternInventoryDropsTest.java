@@ -1,9 +1,11 @@
 package com.formlesslab.ae2additions.tile;
 
 import ae2.util.inv.AppEngInternalInventory;
+import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,6 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PatternInventoryDropsTest {
+    @BeforeAll
+    static void bootstrapMinecraft() {
+        Bootstrap.register();
+    }
+
     @Test
     void drainsEveryPatternAndClearsTheInventory() {
         AppEngInternalInventory inventory = new AppEngInternalInventory(4);
