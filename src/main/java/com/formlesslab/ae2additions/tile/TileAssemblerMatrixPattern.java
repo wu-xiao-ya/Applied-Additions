@@ -98,9 +98,13 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction
         super.addAdditionalDrops(drops);
         for (ItemStack pattern : this.patternInventory) {
             if (!pattern.isEmpty()) {
-                drops.add(pattern);
+                drops.add(pattern.copy());
             }
         }
+    }
+
+    public void drainPatternsTo(List<ItemStack> drops) {
+        PatternInventoryDrops.drain(this.patternInventory, drops);
     }
 
     @Override

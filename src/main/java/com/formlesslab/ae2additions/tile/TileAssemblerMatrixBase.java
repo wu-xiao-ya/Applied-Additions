@@ -111,6 +111,12 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile
         }
     }
 
+    public void drainClusterPatternsTo(List<ItemStack> drops) {
+        if (this.isCore && this.cluster != null) {
+            this.cluster.drainPatternsTo(drops);
+        }
+    }
+
     public boolean isFormed() {
         if (isClientSide()) {
             return this.clientFormed;
