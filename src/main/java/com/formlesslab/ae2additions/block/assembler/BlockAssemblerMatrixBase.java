@@ -1,6 +1,7 @@
 package com.formlesslab.ae2additions.block.assembler;
 
 import ae2.block.AEBaseTileBlock;
+import ae2.util.Platform;
 import com.formlesslab.ae2additions.AppliedAdditions;
 import com.formlesslab.ae2additions.ModGuiHandler;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
@@ -20,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase> extends AEBaseTileBlock<M> {
@@ -80,6 +82,11 @@ public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         M tile = this.getTileEntity(world, pos);
         if (tile != null) {
+            if (!world.isRemote && tile.isCore()) {
+                List<ItemStack> drops = new ArrayList<>();
+                tile.drainClusterPatternsTo(drops);
+                Platform.spawnDrops(world, pos, drops);
+            }
             tile.breakCluster();
         }
         super.breakBlock(world, pos, state);

@@ -14,6 +14,7 @@ import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixCrafter;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixFunction;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixPattern;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -120,6 +121,12 @@ public class ClusterAssemblerMatrix implements IAECluster {
 
     public List<TileAssemblerMatrixPattern> getPatterns() {
         return Collections.unmodifiableList(this.patterns);
+    }
+
+    public void drainPatternsTo(List<ItemStack> drops) {
+        for (TileAssemblerMatrixPattern pattern : this.patterns) {
+            pattern.drainPatternsTo(drops);
+        }
     }
 
     public void done() {
