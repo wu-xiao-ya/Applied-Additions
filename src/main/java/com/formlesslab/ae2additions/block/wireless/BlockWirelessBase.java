@@ -1,16 +1,16 @@
 package com.formlesslab.ae2additions.block.wireless;
 
 import ae2.api.implementations.blockentities.IColorableBlockEntity;
-import ae2.api.util.AEColor;
-import ae2.block.AEBaseTileBlock;
 import ae2.api.orientation.IOrientationStrategy;
 import ae2.api.orientation.OrientationStrategies;
+import ae2.api.util.AEColor;
+import ae2.block.AEBaseTileBlock;
 import ae2.tile.AEBaseTile;
 import com.formlesslab.ae2additions.AppliedAdditions;
+import com.formlesslab.ae2additions.api.WirelessEndpoint;
 import com.formlesslab.ae2additions.init.ModContent;
 import com.formlesslab.ae2additions.tile.TileWirelessConnector;
 import com.formlesslab.ae2additions.tile.TileWirelessHub;
-import com.formlesslab.ae2additions.api.WirelessEndpoint;
 import com.formlesslab.ae2additions.wireless.WirelessLinking;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -18,11 +18,11 @@ import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -34,9 +34,21 @@ public abstract class BlockWirelessBase<T extends AEBaseTile & WirelessEndpoint>
     protected BlockWirelessBase(Class<T> tileClass) {
         super(Material.IRON);
         this.setTileEntity(tileClass);
-        this.setDefaultState(this.blockState.getBaseState()
-            .withProperty(CONNECTED, false)
-            .withProperty(COLOR, AEColor.TRANSPARENT.ordinal()));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(CONNECTED, false).withProperty(COLOR, AEColor.TRANSPARENT.ordinal()));
+    }
+
+    private static boolean isEndpointConnected(WirelessEndpoint endpoint) {
+        if (endpoint instanceof TileWirelessConnector connector) {
+            return connector.isConnectedForRendering();
+        }
+        if (endpoint instanceof TileWirelessHub hub) {
+            return hub.isConnectedForRendering();
+        }
+        return false;
+    }
+
+    private static int getColorIndex(AEColor color) {
+        return color == null ? AEColor.TRANSPARENT.ordinal() : color.ordinal();
     }
 
     @Override
@@ -51,9 +63,7 @@ public abstract class BlockWirelessBase<T extends AEBaseTile & WirelessEndpoint>
 
     @Override
     protected IBlockState updateBlockStateFromTileEntity(IBlockState currentState, T tileEntity) {
-        return currentState
-            .withProperty(CONNECTED, isEndpointConnected(tileEntity))
-            .withProperty(COLOR, getColorIndex(tileEntity.getEndpointColor()));
+        return currentState.withProperty(CONNECTED, isEndpointConnected(tileEntity)).withProperty(COLOR, getColorIndex(tileEntity.getEndpointColor()));
     }
 
     @Override
@@ -68,14 +78,11 @@ public abstract class BlockWirelessBase<T extends AEBaseTile & WirelessEndpoint>
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return super.getStateFromMeta(meta)
-            .withProperty(CONNECTED, false)
-            .withProperty(COLOR, AEColor.TRANSPARENT.ordinal());
+        return super.getStateFromMeta(meta).withProperty(CONNECTED, false).withProperty(COLOR, AEColor.TRANSPARENT.ordinal());
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-                                    EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         ItemStack held = player.getHeldItem(hand);
         T tile = this.getTileEntity(world, pos);
         if (tile == null) {
@@ -103,8 +110,7 @@ public abstract class BlockWirelessBase<T extends AEBaseTile & WirelessEndpoint>
     @Override
     public boolean recolorBlock(World world, BlockPos pos, EnumFacing side, EnumDyeColor color) {
         T tile = this.getTileEntity(world, pos);
-        return tile instanceof IColorableBlockEntity colorable
-                && colorable.recolourBlock(side, AEColor.fromDye(color), null);
+        return tile instanceof IColorableBlockEntity colorable && colorable.recolourBlock(side, AEColor.fromDye(color), null);
     }
 
     @Override
@@ -119,18 +125,4 @@ public abstract class BlockWirelessBase<T extends AEBaseTile & WirelessEndpoint>
     }
 
     protected abstract int getGuiId();
-
-    private static boolean isEndpointConnected(WirelessEndpoint endpoint) {
-        if (endpoint instanceof TileWirelessConnector connector) {
-            return connector.isConnectedForRendering();
-        }
-        if (endpoint instanceof TileWirelessHub hub) {
-            return hub.isConnectedForRendering();
-        }
-        return false;
-    }
-
-    private static int getColorIndex(AEColor color) {
-        return color == null ? AEColor.TRANSPARENT.ordinal() : color.ordinal();
-    }
 }

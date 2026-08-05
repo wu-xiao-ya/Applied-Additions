@@ -34,8 +34,7 @@ public class ContainerReactionChamber extends UpgradeableContainer<TileReactionC
     protected void setupInventorySlots() {
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 3; column++) {
-                this.addSlot(new SlotItemHandler(this.getHost().getInputInventory().toItemHandler(), column + row * 3,
-                        0, 0), SlotSemantics.MACHINE_INPUT);
+                this.addSlot(new SlotItemHandler(this.getHost().getInputInventory().toItemHandler(), column + row * 3, 0, 0), SlotSemantics.MACHINE_INPUT);
             }
         }
         this.addSlot(new SlotItemHandler(this.getHost().getOutputInventory().toItemHandler(), 0, 0, 0) {

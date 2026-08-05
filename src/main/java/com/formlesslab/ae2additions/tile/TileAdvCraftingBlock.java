@@ -25,7 +25,7 @@ import com.formlesslab.ae2additions.api.AAECraftingUnitType;
 import com.formlesslab.ae2additions.api.QuantumComputerHost;
 import com.formlesslab.ae2additions.block.quantum.BlockAAEAbstractCraftingUnit;
 import com.formlesslab.ae2additions.block.quantum.BlockAAECraftingUnit;
-import com.formlesslab.ae2additions.init.QuantumContent;
+import com.formlesslab.ae2additions.init.ModContent;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCalculator;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
 import io.netty.buffer.ByteBuf;
@@ -42,8 +42,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
-public class TileAdvCraftingBlock extends AENetworkedTile
-    implements IAEMultiBlock<AdvCraftingCPUCluster>, IPowerChannelState, IConfigurableObject, QuantumComputerHost {
+public class TileAdvCraftingBlock extends AENetworkedTile implements IAEMultiBlock<AdvCraftingCPUCluster>, IPowerChannelState, IConfigurableObject, QuantumComputerHost {
 
     private final AdvCraftingCPUCalculator calc = new AdvCraftingCPUCalculator(this);
     private NBTTagCompound previousState;
@@ -52,9 +51,35 @@ public class TileAdvCraftingBlock extends AENetworkedTile
     private ICraftingCPUTileEntity.ClientState clientState = ICraftingCPUTileEntity.ClientState.DEFAULT;
 
     public TileAdvCraftingBlock() {
-        this.getMainNode()
-            .setFlags(GridFlags.MULTIBLOCK, GridFlags.REQUIRE_CHANNEL)
-            .addService(IGridMultiblock.class, this::getMultiblockNodes);
+        this.getMainNode().setFlags(GridFlags.MULTIBLOCK, GridFlags.REQUIRE_CHANNEL).addService(IGridMultiblock.class, this::getMultiblockNodes);
+    }
+
+    private static int encodeConnections(EnumSet<EnumFacing> connections) {
+        int encoded = 0;
+        for (EnumFacing side : connections) {
+            encoded |= 1 << side.getIndex();
+        }
+        return encoded;
+    }
+
+    private static EnumSet<EnumFacing> decodeConnections(int encoded) {
+        EnumSet<EnumFacing> connections = EnumSet.noneOf(EnumFacing.class);
+        for (EnumFacing side : EnumFacing.values()) {
+            if ((encoded & (1 << side.getIndex())) != 0) {
+                connections.add(side);
+            }
+        }
+        return connections;
+    }
+
+    private static IBlockState setBooleanProperty(IBlockState state, String name, boolean value) {
+        for (IProperty<?> property : state.getPropertyKeys()) {
+            if (property instanceof PropertyBool && property.getName().equals(name)) {
+                @SuppressWarnings("unchecked") IProperty<Boolean> boolProperty = (IProperty<Boolean>) property;
+                return state.withProperty(boolProperty, value);
+            }
+        }
+        return state;
     }
 
     @Override
@@ -75,12 +100,10 @@ public class TileAdvCraftingBlock extends AENetworkedTile
 
     public BlockAAEAbstractCraftingUnit<?> getUnitBlock() {
         if (this.world == null || this.isInvalid()) {
-            return QuantumContent.getBlock(AAECraftingUnitType.QUANTUM_UNIT);
+            return ModContent.getQuantumBlock(AAECraftingUnitType.QUANTUM_UNIT);
         }
         Block block = this.world.getBlockState(this.pos).getBlock();
-        return block instanceof BlockAAEAbstractCraftingUnit<?>
-            ? (BlockAAEAbstractCraftingUnit<?>) block
-            : QuantumContent.getBlock(AAECraftingUnitType.QUANTUM_UNIT);
+        return block instanceof BlockAAEAbstractCraftingUnit<?> ? (BlockAAEAbstractCraftingUnit<?>) block : ModContent.getQuantumBlock(AAECraftingUnitType.QUANTUM_UNIT);
     }
 
     public ICraftingUnitType getCraftingUnitType() {
@@ -315,8 +338,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile
 
     public void onQuantumComputerActivated(EntityPlayer player) {
         if (this.world != null && !this.world.isRemote) {
-            player.openGui(AppliedAdditions.INSTANCE, ModGuiHandler.QUANTUM_COMPUTER, this.world,
-                this.pos.getX(), this.pos.getY(), this.pos.getZ());
+            player.openGui(AppliedAdditions.INSTANCE, ModGuiHandler.QUANTUM_COMPUTER, this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
         }
     }
 
@@ -332,9 +354,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile
 
     @Override
     public CpuSelectionMode getQuantumSelectionMode() {
-        return this.cluster == null
-            ? CpuSelectionMode.ANY
-            : this.cluster.getSelectionMode();
+        return this.cluster == null ? CpuSelectionMode.ANY : this.cluster.getSelectionMode();
     }
 
     @Override
@@ -387,11 +407,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile
     @Override
     protected boolean readFromStream(ByteBuf data) {
         boolean changed = super.readFromStream(data);
-        ICraftingCPUTileEntity.ClientState state = new ICraftingCPUTileEntity.ClientState(
-            data.readBoolean(),
-            data.readBoolean(),
-            decodeConnections(data.readUnsignedByte())
-        );
+        ICraftingCPUTileEntity.ClientState state = new ICraftingCPUTileEntity.ClientState(data.readBoolean(), data.readBoolean(), decodeConnections(data.readUnsignedByte()));
         if (!state.equals(this.clientState)) {
             this.clientState = state;
             return true;
@@ -422,9 +438,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile
         AAECraftingUnitType ownType = this.getQuantumUnitType();
         for (EnumFacing side : EnumFacing.values()) {
             Block block = this.world.getBlockState(this.pos.offset(side)).getBlock();
-            if (block instanceof BlockAAECraftingUnit quantumBlock
-                && quantumBlock.type instanceof AAECraftingUnitType neighborType
-                && ownType.isBoundaryOnly() == neighborType.isBoundaryOnly()) {
+            if (block instanceof BlockAAECraftingUnit quantumBlock && quantumBlock.type instanceof AAECraftingUnitType neighborType && ownType.isBoundaryOnly() == neighborType.isBoundaryOnly()) {
                 connections.add(side);
             }
         }
@@ -444,34 +458,5 @@ public class TileAdvCraftingBlock extends AENetworkedTile
             }
         }
         return nodes.iterator();
-    }
-
-    private static int encodeConnections(EnumSet<EnumFacing> connections) {
-        int encoded = 0;
-        for (EnumFacing side : connections) {
-            encoded |= 1 << side.getIndex();
-        }
-        return encoded;
-    }
-
-    private static EnumSet<EnumFacing> decodeConnections(int encoded) {
-        EnumSet<EnumFacing> connections = EnumSet.noneOf(EnumFacing.class);
-        for (EnumFacing side : EnumFacing.values()) {
-            if ((encoded & (1 << side.getIndex())) != 0) {
-                connections.add(side);
-            }
-        }
-        return connections;
-    }
-
-    private static IBlockState setBooleanProperty(IBlockState state, String name, boolean value) {
-        for (IProperty<?> property : state.getPropertyKeys()) {
-            if (property instanceof PropertyBool && property.getName().equals(name)) {
-                @SuppressWarnings("unchecked")
-                IProperty<Boolean> boolProperty = (IProperty<Boolean>) property;
-                return state.withProperty(boolProperty, value);
-            }
-        }
-        return state;
     }
 }

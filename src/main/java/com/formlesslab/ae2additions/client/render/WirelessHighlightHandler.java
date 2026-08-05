@@ -51,16 +51,13 @@ public final class WirelessHighlightHandler {
         GlStateManager.pushMatrix();
         GlStateManager.translate(-camX, -camY, -camZ);
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO);
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.glLineWidth(2.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.disableDepth();
         GlStateManager.depthMask(false);
 
-        RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(this.target).grow(0.01D),
-            0.35F, 0.85F, 1.0F, 0.9F);
+        RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(this.target).grow(0.01D), 0.35F, 0.85F, 1.0F, 0.9F);
 
         GlStateManager.glLineWidth(1.0F);
         GlStateManager.depthMask(true);

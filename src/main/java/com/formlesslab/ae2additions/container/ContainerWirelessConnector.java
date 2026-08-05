@@ -2,8 +2,8 @@ package com.formlesslab.ae2additions.container;
 
 import ae2.container.guisync.GuiSync;
 import ae2.container.implementations.UpgradeableContainer;
-import com.formlesslab.ae2additions.tile.TileWirelessConnector;
 import com.formlesslab.ae2additions.api.WirelessStatus;
+import com.formlesslab.ae2additions.tile.TileWirelessConnector;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.math.BlockPos;
 

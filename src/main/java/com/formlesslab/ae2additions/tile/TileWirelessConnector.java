@@ -15,7 +15,7 @@ import ae2.tile.grid.AENetworkedTile;
 import com.formlesslab.ae2additions.api.WirelessEndpoint;
 import com.formlesslab.ae2additions.api.WirelessNode;
 import com.formlesslab.ae2additions.api.WirelessStatus;
-import com.formlesslab.ae2additions.init.ModConfig;
+import com.formlesslab.ae2additions.init.Configurations;
 import com.formlesslab.ae2additions.init.ModContent;
 import com.formlesslab.ae2additions.wireless.WirelessConnection;
 import io.netty.buffer.ByteBuf;
@@ -31,23 +31,33 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TileWirelessConnector extends AENetworkedTile
-    implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessNode, WirelessEndpoint {
+public class TileWirelessConnector extends AENetworkedTile implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessNode, WirelessEndpoint {
 
+    private final WirelessConnection connection = new WirelessConnection(this);
     private boolean updateStatus = true;
     private long frequency;
     private double powerUse = 1.0;
     private AEColor color = AEColor.TRANSPARENT;
     private boolean clientConnected;
-    private final WirelessConnection connection = new WirelessConnection(this);
-    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(
-        Item.getItemFromBlock(ModContent.WIRELESS_CONNECTOR), 4, this::onUpgradesChanged);
-
     public TileWirelessConnector() {
         this.getMainNode().setFlags(GridFlags.DENSE_CAPACITY);
         this.getMainNode().setIdlePowerUsage(this.powerUse);
         this.getMainNode().setGridColor(this.color);
     }
+
+    @Override
+    protected boolean readFromStream(ByteBuf data) {
+        boolean changed = super.readFromStream(data);
+        AEColor oldColor = this.color;
+        boolean oldConnected = this.clientConnected;
+
+        int colorOrdinal = data.readUnsignedByte();
+        this.color = colorOrdinal >= 0 && colorOrdinal < AEColor.values().length ? AEColor.values()[colorOrdinal] : AEColor.TRANSPARENT;
+        this.clientConnected = data.readBoolean();
+        this.getMainNode().setGridColor(this.color);
+
+        return changed || oldColor != this.color || oldConnected != this.clientConnected;
+    }    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(Item.getItemFromBlock(ModContent.WIRELESS_CONNECTOR), 4, this::onUpgradesChanged);
 
     @Override
     public void serverTick() {
@@ -281,20 +291,15 @@ public class TileWirelessConnector extends AENetworkedTile
         data.writeBoolean(this.isConnected());
     }
 
-    @Override
-    protected boolean readFromStream(ByteBuf data) {
-        boolean changed = super.readFromStream(data);
-        AEColor oldColor = this.color;
-        boolean oldConnected = this.clientConnected;
-
-        int colorOrdinal = data.readUnsignedByte();
-        this.color = colorOrdinal >= 0 && colorOrdinal < AEColor.values().length
-            ? AEColor.values()[colorOrdinal]
-            : AEColor.TRANSPARENT;
-        this.clientConnected = data.readBoolean();
-        this.getMainNode().setGridColor(this.color);
-
-        return changed || oldColor != this.color || oldConnected != this.clientConnected;
+    private void updatePowerUsage() {
+        double discount = 1.0 - 0.1 * this.upgrades.getInstalledUpgrades(AEItems.ENERGY_CARD.item());
+        if (this.connection.isConnected()) {
+            double distance = Math.max(this.connection.getDistance(), Math.E);
+            this.powerUse = Math.max(1.0, distance * Math.log(distance) * discount) * Configurations.WIRELESS.powerMultiplier;
+        } else {
+            this.powerUse = Configurations.WIRELESS.powerMultiplier;
+        }
+        this.getMainNode().setIdlePowerUsage(this.powerUse);
     }
 
     private void onUpgradesChanged() {
@@ -302,15 +307,7 @@ public class TileWirelessConnector extends AENetworkedTile
         this.saveChanges();
     }
 
-    private void updatePowerUsage() {
-        double discount = 1.0 - 0.1 * this.upgrades.getInstalledUpgrades(AEItems.ENERGY_CARD.item());
-        if (this.connection.isConnected()) {
-            double distance = Math.max(this.connection.getDistance(), Math.E);
-            this.powerUse = Math.max(1.0, distance * Math.log(distance) * discount)
-                * ModConfig.wirelessConnectorPowerMultiplier;
-        } else {
-            this.powerUse = ModConfig.wirelessConnectorPowerMultiplier;
-        }
-        this.getMainNode().setIdlePowerUsage(this.powerUse);
-    }
+
+
+
 }

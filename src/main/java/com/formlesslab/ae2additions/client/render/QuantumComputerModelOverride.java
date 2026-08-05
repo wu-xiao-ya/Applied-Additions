@@ -2,15 +2,15 @@ package com.formlesslab.ae2additions.client.render;
 
 import ae2.core.registries.CraftingUnitClientRegistry;
 import com.formlesslab.ae2additions.Reference;
-import com.formlesslab.ae2additions.client.model.AAECraftingUnitModelProvider;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
+import com.formlesslab.ae2additions.client.model.AAECraftingUnitModelProvider;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod;
@@ -24,11 +24,20 @@ public final class QuantumComputerModelOverride {
     private QuantumComputerModelOverride() {
     }
 
+    private static void putFormedVariant(IRegistry<ModelResourceLocation, IBakedModel> registry, String path, boolean powered, IBakedModel model) {
+        String variant = "formed=true,powered=" + powered;
+        putModel(registry, "quantum_crafting/" + path + "_formed", variant, model);
+        putModel(registry, "block/quantum_crafting/" + path + "_formed", variant, model);
+        putModel(registry, path, variant, model);
+    }
+
+    private static void putModel(IRegistry<ModelResourceLocation, IBakedModel> registry, String path, String variant, IBakedModel model) {
+        registry.putObject(new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID, path), variant), model);
+    }
+
     @SubscribeEvent
     public void onModelRegistry(ModelRegistryEvent event) {
-        CraftingUnitClientRegistry.getInstance().registerModelProvider(
-            AAECraftingUnitType.MODEL_PROVIDER_ID,
-            AAECraftingUnitModelProvider.FORMED_MODEL_PROVIDER);
+        CraftingUnitClientRegistry.getInstance().registerModelProvider(AAECraftingUnitType.MODEL_PROVIDER_ID, AAECraftingUnitModelProvider.FORMED_MODEL_PROVIDER);
     }
 
     @SubscribeEvent
@@ -43,26 +52,9 @@ public final class QuantumComputerModelOverride {
         IRegistry<ModelResourceLocation, IBakedModel> registry = event.getModelRegistry();
 
         for (AAECraftingUnitType type : AAECraftingUnitType.values()) {
-            IBakedModel model = new AAECraftingUnitModelProvider(type).bake(
-                DefaultVertexFormats.BLOCK,
-                ModelLoader.defaultTextureGetter());
+            IBakedModel model = new AAECraftingUnitModelProvider(type).bake(DefaultVertexFormats.BLOCK, ModelLoader.defaultTextureGetter());
             putFormedVariant(registry, type.getRegistryName(), false, model);
             putFormedVariant(registry, type.getRegistryName(), true, model);
         }
-    }
-
-    private static void putFormedVariant(IRegistry<ModelResourceLocation, IBakedModel> registry, String path,
-                                         boolean powered, IBakedModel model) {
-        String variant = "formed=true,powered=" + powered;
-        putModel(registry, "quantum_crafting/" + path + "_formed", variant, model);
-        putModel(registry, "block/quantum_crafting/" + path + "_formed", variant, model);
-        putModel(registry, path, variant, model);
-    }
-
-    private static void putModel(IRegistry<ModelResourceLocation, IBakedModel> registry, String path, String variant,
-                                 IBakedModel model) {
-        registry.putObject(
-            new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID, path), variant),
-            model);
     }
 }

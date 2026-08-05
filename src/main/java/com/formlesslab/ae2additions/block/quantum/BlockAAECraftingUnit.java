@@ -2,8 +2,8 @@ package com.formlesslab.ae2additions.block.quantum;
 
 import ae2.block.crafting.ICraftingUnitType;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
-import com.formlesslab.ae2additions.client.util.QuantumComputerConnect;
 import com.formlesslab.ae2additions.client.model.QuantumComputerConnectProperty;
+import com.formlesslab.ae2additions.client.util.QuantumComputerConnect;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -32,9 +32,7 @@ public class BlockAAECraftingUnit extends BlockAAEAbstractCraftingUnit<TileAdvCr
 
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
-        return this.type == AAECraftingUnitType.QUANTUM_STRUCTURE
-            ? layer == BlockRenderLayer.CUTOUT || layer == BlockRenderLayer.TRANSLUCENT
-            : super.canRenderInLayer(state, layer);
+        return this.type == AAECraftingUnitType.QUANTUM_STRUCTURE ? layer == BlockRenderLayer.CUTOUT || layer == BlockRenderLayer.TRANSLUCENT : super.canRenderInLayer(state, layer);
     }
 
     @Override
@@ -49,7 +47,7 @@ public class BlockAAECraftingUnit extends BlockAAEAbstractCraftingUnit<TileAdvCr
 
     @Override
     protected IUnlistedProperty<?>[] getUnlistedProperties() {
-        return new IUnlistedProperty<?>[] {FORWARD, UP, STATE, QuantumComputerConnectProperty.INSTANCE};
+        return new IUnlistedProperty<?>[]{FORWARD, UP, STATE, QuantumComputerConnectProperty.INSTANCE};
     }
 
     @Override
@@ -70,22 +68,11 @@ public class BlockAAECraftingUnit extends BlockAAEAbstractCraftingUnit<TileAdvCr
     }
 
     private boolean shouldConnectTo(Block block) {
-        return block instanceof BlockAAECraftingUnit
-            && ((((BlockAAECraftingUnit) block).type == AAECraftingUnitType.QUANTUM_STRUCTURE) == (this.type == AAECraftingUnitType.QUANTUM_STRUCTURE));
+        return block instanceof BlockAAECraftingUnit && ((((BlockAAECraftingUnit) block).type == AAECraftingUnitType.QUANTUM_STRUCTURE) == (this.type == AAECraftingUnitType.QUANTUM_STRUCTURE));
     }
 
     @Override
-    public boolean onBlockActivated(
-        World world,
-        BlockPos pos,
-        IBlockState state,
-        EntityPlayer player,
-        EnumHand hand,
-        EnumFacing side,
-        float hitX,
-        float hitY,
-        float hitZ
-    ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         TileAdvCraftingBlock tile = this.getTileEntity(world, pos);
         if (tile != null && tile.isFormed() && !player.isSneaking()) {
             if (!world.isRemote) {

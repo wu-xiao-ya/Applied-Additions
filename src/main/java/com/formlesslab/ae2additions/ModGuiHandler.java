@@ -27,50 +27,50 @@ public class ModGuiHandler implements IGuiHandler {
     private static boolean clientRegistrationsInitialized;
 
     static {
-        registerGui(
-            WIRELESS_CONNECTOR,
-            TileWirelessConnector.class,
-            (player, _, _, connector) -> new ContainerWirelessConnector(player.inventory, connector));
-        registerGui(
-            WIRELESS_HUB,
-            TileWirelessHub.class,
-            (player, _, _, hub) -> new ContainerWirelessHub(player.inventory, hub));
-        registerGui(
-            QUANTUM_COMPUTER,
-            TileAdvCraftingBlock.class,
-            (player, _, _, quantum) -> new ContainerQuantumComputer(player.inventory, quantum));
-        registerGui(
-            ASSEMBLER_MATRIX,
-            TileAssemblerMatrixBase.class,
-            (player, _, _, matrix) -> new ContainerAssemblerMatrix(player.inventory, matrix));
-        registerGui(
-                REACTION_CHAMBER,
-                TileReactionChamber.class,
-                (player, _, _, chamber) -> createReactionChamberContainer(player, chamber));
+        registerGui(WIRELESS_CONNECTOR, TileWirelessConnector.class, (player, _, _, connector) -> new ContainerWirelessConnector(player.inventory, connector));
+        registerGui(WIRELESS_HUB, TileWirelessHub.class, (player, _, _, hub) -> new ContainerWirelessHub(player.inventory, hub));
+        registerGui(QUANTUM_COMPUTER, TileAdvCraftingBlock.class, (player, _, _, quantum) -> new ContainerQuantumComputer(player.inventory, quantum));
+        registerGui(ASSEMBLER_MATRIX, TileAssemblerMatrixBase.class, (player, _, _, matrix) -> new ContainerAssemblerMatrix(player.inventory, matrix));
+        registerGui(REACTION_CHAMBER, TileReactionChamber.class, (player, _, _, chamber) -> createReactionChamberContainer(player, chamber));
     }
 
-    public static <T extends TileEntity> void registerGui(int id, Class<T> tileClass,
-                                                          ServerGuiFactory<T> serverFactory) {
+    public static <T extends TileEntity> void registerGui(int id, Class<T> tileClass, ServerGuiFactory<T> serverFactory) {
         if (REGISTRATIONS.containsKey(id)) {
             throw new IllegalArgumentException("Duplicate GUI id " + id);
         }
         REGISTRATIONS.put(id, new GuiRegistration<>(tileClass, serverFactory));
     }
 
-    public static <T extends TileEntity> void registerGui(int id, Class<T> tileClass,
-                                                          ServerGuiFactory<T> serverFactory,
-                                                          ClientGuiFactory<T> clientFactory) {
+    public static <T extends TileEntity> void registerGui(int id, Class<T> tileClass, ServerGuiFactory<T> serverFactory, ClientGuiFactory<T> clientFactory) {
         registerGui(id, tileClass, serverFactory);
         registerClientGui(id, tileClass, clientFactory);
     }
 
-    public static <T extends TileEntity> void registerClientGui(int id, Class<T> tileClass,
-                                                                ClientGuiFactory<T> clientFactory) {
+    public static <T extends TileEntity> void registerClientGui(int id, Class<T> tileClass, ClientGuiFactory<T> clientFactory) {
         GuiRegistration<?> registration = REGISTRATIONS.get(id);
         if (registration == null) {
             throw new IllegalArgumentException("Missing server GUI registration for id " + id);
         }
         registration.setClientFactory(tileClass, clientFactory);
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static void ensureClientRegistrations() {
+        if (clientRegistrationsInitialized) {
+            return;
+        }
+        clientRegistrationsInitialized = true;
+        registerClientGui(WIRELESS_CONNECTOR, TileWirelessConnector.class, (player, _, _, connector) -> new GuiWirelessConnector(new ContainerWirelessConnector(player.inventory, connector), player.inventory, GuiStyleManager.loadStyleDoc("/screens/wireless_connector.json")));
+        registerClientGui(WIRELESS_HUB, TileWirelessHub.class, (player, _, _, hub) -> new GuiWirelessHub(new ContainerWirelessHub(player.inventory, hub), player.inventory, GuiStyleManager.loadStyleDoc("/screens/wireless_hub.json")));
+        registerClientGui(QUANTUM_COMPUTER, TileAdvCraftingBlock.class, (player, _, _, quantum) -> new GuiQuantumComputer(new ContainerQuantumComputer(player.inventory, quantum), player.inventory, quantum.getDisplayName(), GuiStyleManager.loadStyleDoc("/screens/quantum_computer.json")));
+        registerClientGui(ASSEMBLER_MATRIX, TileAssemblerMatrixBase.class, (player, _, _, matrix) -> new GuiAssemblerMatrix<>(new ContainerAssemblerMatrix(player.inventory, matrix), player.inventory, GuiStyleManager.loadStyleDoc("/screens/assembler_matrix.json")));
+        registerClientGui(REACTION_CHAMBER, TileReactionChamber.class, (player, _, _, chamber) -> new GuiReactionChamber(createReactionChamberContainer(player, chamber), player.inventory, GuiStyleManager.loadStyleDoc("/screens/reaction_chamber.json")));
+    }
+
+    private static ContainerReactionChamber createReactionChamberContainer(EntityPlayer player, TileReactionChamber chamber) {
+        ContainerReactionChamber container = new ContainerReactionChamber(player.inventory, chamber);
+        container.setLocator(GuiHostLocators.forTile(chamber));
+        return container;
     }
 
     @Override
@@ -89,56 +89,6 @@ public class ModGuiHandler implements IGuiHandler {
         TileEntity tile = world.getTileEntity(pos);
         GuiRegistration<?> registration = REGISTRATIONS.get(id);
         return registration == null ? null : registration.createClient(player, world, pos, tile);
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static void ensureClientRegistrations() {
-        if (clientRegistrationsInitialized) {
-            return;
-        }
-        clientRegistrationsInitialized = true;
-        registerClientGui(
-            WIRELESS_CONNECTOR,
-            TileWirelessConnector.class,
-            (player, _, _, connector) -> new GuiWirelessConnector(
-                new ContainerWirelessConnector(player.inventory, connector),
-                player.inventory,
-                GuiStyleManager.loadStyleDoc("/screens/wireless_connector.json")));
-        registerClientGui(
-            WIRELESS_HUB,
-            TileWirelessHub.class,
-            (player, _, _, hub) -> new GuiWirelessHub(
-                new ContainerWirelessHub(player.inventory, hub),
-                player.inventory,
-                GuiStyleManager.loadStyleDoc("/screens/wireless_hub.json")));
-        registerClientGui(
-            QUANTUM_COMPUTER,
-            TileAdvCraftingBlock.class,
-            (player, _, _, quantum) -> new GuiQuantumComputer(
-                new ContainerQuantumComputer(player.inventory, quantum),
-                player.inventory,
-                quantum.getDisplayName(),
-                GuiStyleManager.loadStyleDoc("/screens/quantum_computer.json")));
-        registerClientGui(
-            ASSEMBLER_MATRIX,
-            TileAssemblerMatrixBase.class,
-            (player, _, _, matrix) -> new GuiAssemblerMatrix<>(
-                new ContainerAssemblerMatrix(player.inventory, matrix),
-                player.inventory,
-                    GuiStyleManager.loadStyleDoc("/screens/assembler_matrix.json")));
-        registerClientGui(
-                REACTION_CHAMBER,
-                TileReactionChamber.class,
-                (player, _, _, chamber) -> new GuiReactionChamber(
-                        createReactionChamberContainer(player, chamber),
-                        player.inventory,
-                        GuiStyleManager.loadStyleDoc("/screens/reaction_chamber.json")));
-    }
-
-    private static ContainerReactionChamber createReactionChamberContainer(EntityPlayer player, TileReactionChamber chamber) {
-        ContainerReactionChamber container = new ContainerReactionChamber(player.inventory, chamber);
-        container.setLocator(GuiHostLocators.forTile(chamber));
-        return container;
     }
 
     @FunctionalInterface
@@ -161,8 +111,7 @@ public class ModGuiHandler implements IGuiHandler {
             this.serverFactory = serverFactory;
         }
 
-        private <U extends TileEntity> void setClientFactory(Class<U> expectedTileClass,
-                                                             ClientGuiFactory<U> clientFactory) {
+        private <U extends TileEntity> void setClientFactory(Class<U> expectedTileClass, ClientGuiFactory<U> clientFactory) {
             if (this.tileClass != expectedTileClass) {
                 throw new IllegalArgumentException("Client GUI tile class mismatch for " + expectedTileClass);
             }

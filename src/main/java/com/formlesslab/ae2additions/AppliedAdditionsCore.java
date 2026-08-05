@@ -1,11 +1,12 @@
 package com.formlesslab.ae2additions;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.jetbrains.annotations.Nullable;
 import zone.rong.mixinbooter.IEarlyMixinLoader;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("deprecation")
 @IFMLLoadingPlugin.Name("AppliedAdditionsCore")

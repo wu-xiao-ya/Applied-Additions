@@ -18,6 +18,10 @@ public class AssemblerMatrixSlot extends AppEngSlot {
         this.setNotDraggable();
     }
 
+    private static World getDisplayWorld() {
+        return Minecraft.getMinecraft().world;
+    }
+
     public int getActualSlot() {
         return this.getSlotIndex() + this.offset;
     }
@@ -42,9 +46,5 @@ public class AssemblerMatrixSlot extends AppEngSlot {
     @Override
     public boolean isItemValid(ItemStack stack) {
         return super.isItemValid(stack);
-    }
-
-    private static World getDisplayWorld() {
-        return Minecraft.getMinecraft().world;
     }
 }

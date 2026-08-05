@@ -56,8 +56,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 
-public class TileReactionChamber extends AENetworkedPoweredTile
-        implements IGridTickable, IUpgradeableObject, IConfigurableObject, ISegmentedInventory, IOutputSideConfigHost {
+public class TileReactionChamber extends AENetworkedPoweredTile implements IGridTickable, IUpgradeableObject, IConfigurableObject, ISegmentedInventory, IOutputSideConfigHost {
     public static final int INPUT_SLOTS = 9;
     public static final int MAX_PROCESSING_TIME = 200;
     public static final int TANK_CAPACITY = Fluid.BUCKET_VOLUME * 16;
@@ -66,9 +65,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
     private final AppEngInternalInventory input = new AppEngInternalInventory(this, INPUT_SLOTS, 64, new InputFilter());
     private final AppEngInternalInventory output = new AppEngInternalInventory(this, 1, 64);
     private final InternalInventory inventory = new CombinedInternalInventory(this.input, this.output);
-    private final InternalInventory exposedInventory = new CombinedInternalInventory(
-            new FilteredInternalInventory(this.input, new InputFilter()),
-            new FilteredInternalInventory(this.output, new OutputFilter()));
+    private final InternalInventory exposedInventory = new CombinedInternalInventory(new FilteredInternalInventory(this.input, new InputFilter()), new FilteredInternalInventory(this.output, new OutputFilter()));
     private final FluidTank outputTank = new SyncedTank(TANK_CAPACITY, this::onOutputTankChanged);
     private final IFluidHandler fluidHandler = new FluidHandler();
     private final ConfigManager configManager = new ConfigManager(this::onConfigChanged);
@@ -80,8 +77,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
     @Nullable
     private ReactionChamberRecipe cachedTask;
     private final FluidTank inputTank = new SyncedTank(TANK_CAPACITY, this::onInputTankChanged);
-    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(
-            Item.getItemFromBlock(ModContent.REACTION_CHAMBER), 5, this::onUpgradesChanged);
+    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(Item.getItemFromBlock(ModContent.REACTION_CHAMBER), 5, this::onUpgradesChanged);
 
     public TileReactionChamber() {
         this.setInternalMaxPower(500000);
@@ -205,8 +201,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
         this.inputTank.readFromNBT(inputTankTag == null ? new NBTTagCompound() : inputTankTag);
         NBTTagCompound outputTankTag = ByteBufUtils.readTag(data);
         this.outputTank.readFromNBT(outputTankTag == null ? new NBTTagCompound() : outputTankTag);
-        return changed || oldWorking != this.working || oldPowered != this.powered
-                || oldProcessing != this.processingTime;
+        return changed || oldWorking != this.working || oldPowered != this.powered || oldProcessing != this.processingTime;
     }
 
     @Override
@@ -269,9 +264,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
         };
         int powerConsumption = 10 * speedFactor;
         IEnergySource source = this.selectEnergySource(powerConsumption);
-        if (source != null
-                && source.extractAEPower(powerConsumption, Actionable.SIMULATE, PowerMultiplier.CONFIG)
-                > powerConsumption - 0.01) {
+        if (source != null && source.extractAEPower(powerConsumption, Actionable.SIMULATE, PowerMultiplier.CONFIG) > powerConsumption - 0.01) {
             source.extractAEPower(powerConsumption, Actionable.MODULATE, PowerMultiplier.CONFIG);
             this.processingTime = Math.min(MAX_PROCESSING_TIME, this.processingTime + speedFactor);
             this.setWorking(true);
@@ -330,15 +323,13 @@ public class TileReactionChamber extends AENetworkedPoweredTile
     }
 
     private boolean hasAutoExportWork() {
-        return (!this.output.getStackInSlot(0).isEmpty() || this.outputTank.getFluidAmount() > 0)
-                && this.configManager.getSetting(Settings.AUTO_EXPORT) == YesNo.YES;
+        return (!this.output.getStackInSlot(0).isEmpty() || this.outputTank.getFluidAmount() > 0) && this.configManager.getSetting(Settings.AUTO_EXPORT) == YesNo.YES;
     }
 
     @Nullable
     public ReactionChamberRecipe getTask() {
         if (this.cachedTask == null) {
-            this.cachedTask = ReactionChamberRecipes.findRecipe(this.input, this.inputTank,
-                    this.output.getStackInSlot(0), this.outputTank, TANK_CAPACITY);
+            this.cachedTask = ReactionChamberRecipes.findRecipe(this.input, this.inputTank, this.output.getStackInSlot(0), this.outputTank, TANK_CAPACITY);
         }
         return this.cachedTask;
     }
@@ -510,8 +501,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
 
     @Override
     public void returnToMainContainer(EntityPlayer player, ISubGui subGui) {
-        player.openGui(AppliedAdditions.INSTANCE, ModGuiHandler.REACTION_CHAMBER, this.world,
-                this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        player.openGui(AppliedAdditions.INSTANCE, ModGuiHandler.REACTION_CHAMBER, this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
     @Override
@@ -595,8 +585,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
                 return;
             }
             var state = tile.world.getBlockState(tile.pos);
-            if (state.getBlock() instanceof BlockReactionChamber
-                    && state.getValue(BlockReactionChamber.WORKING) != working) {
+            if (state.getBlock() instanceof BlockReactionChamber && state.getValue(BlockReactionChamber.WORKING) != working) {
                 tile.world.setBlockState(tile.pos, state.withProperty(BlockReactionChamber.WORKING, working), 3);
             }
         }
@@ -619,10 +608,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile
     private final class FluidHandler implements IFluidHandler {
         @Override
         public IFluidTankProperties[] getTankProperties() {
-            return new IFluidTankProperties[]{
-                    new FluidTankProperties(inputTank.getFluid(), TANK_CAPACITY, true, false),
-                    new FluidTankProperties(outputTank.getFluid(), TANK_CAPACITY, false, true)
-            };
+            return new IFluidTankProperties[]{new FluidTankProperties(inputTank.getFluid(), TANK_CAPACITY, true, false), new FluidTankProperties(outputTank.getFluid(), TANK_CAPACITY, false, true)};
         }
 
         @Override

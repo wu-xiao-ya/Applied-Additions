@@ -18,10 +18,7 @@ public class GuiQuantumComputer extends GuiCraftingCPU<ContainerQuantumComputer>
     public GuiQuantumComputer(ContainerQuantumComputer menu, InventoryPlayer playerInventory, ITextComponent title, GuiStyle style) {
         super(menu, playerInventory, title, style);
 
-        this.selectionMode = new ServerSettingToggleButton<>(
-            Settings.CPU_SELECTION_MODE,
-            CpuSelectionMode.ANY
-        );
+        this.selectionMode = new ServerSettingToggleButton<>(Settings.CPU_SELECTION_MODE, CpuSelectionMode.ANY);
         this.widgets.add("selectionMode", this.selectionMode);
 
         Scrollbar scrollbar = this.widgets.addScrollBar("selectCpuScrollbar", Scrollbar.BIG);

@@ -21,20 +21,10 @@ public record QuantumComputerList(List<QuantumComputerEntry> cpus) implements Pa
         this(readCpus(data));
     }
 
-    public void writeToPacket(ByteBuf data) {
-        PacketBuffer buffer = new PacketBuffer(data);
-        buffer.writeInt(this.cpus.size());
-
-        for (QuantumComputerEntry cpu : this.cpus) {
-            cpu.writeToPacket(buffer);
-        }
-    }
-
     private static List<QuantumComputerEntry> readCpus(ByteBuf data) {
         PacketBuffer buffer = new PacketBuffer(data);
         int count = buffer.readInt();
-        if (count < 0 || count > MAX_CPU_LIST_ENTRIES
-                || count > buffer.readableBytes() / MIN_CPU_LIST_ENTRY_BYTES) {
+        if (count < 0 || count > MAX_CPU_LIST_ENTRIES || count > buffer.readableBytes() / MIN_CPU_LIST_ENTRY_BYTES) {
             throw new IllegalArgumentException("Invalid quantum CPU list entry count: " + count);
         }
 
@@ -45,5 +35,14 @@ public record QuantumComputerList(List<QuantumComputerEntry> cpus) implements Pa
         }
 
         return List.copyOf(readCpus);
+    }
+
+    public void writeToPacket(ByteBuf data) {
+        PacketBuffer buffer = new PacketBuffer(data);
+        buffer.writeInt(this.cpus.size());
+
+        for (QuantumComputerEntry cpu : this.cpus) {
+            cpu.writeToPacket(buffer);
+        }
     }
 }

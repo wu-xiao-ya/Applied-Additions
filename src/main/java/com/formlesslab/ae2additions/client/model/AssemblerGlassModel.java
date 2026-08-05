@@ -3,11 +3,11 @@ package com.formlesslab.ae2additions.client.model;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraftforge.common.model.IModelState;
 import org.jspecify.annotations.NonNull;
 
@@ -35,21 +35,13 @@ public enum AssemblerGlassModel implements IModel, ICustomModelLoader {
     }
 
     @Override
-    public IBakedModel bake(
-            @NonNull IModelState state,
-            @NonNull VertexFormat format,
-            @NonNull Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+    public IBakedModel bake(@NonNull IModelState state, @NonNull VertexFormat format, @NonNull Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
         return new AssemblerGlassBakedModel(format, bakedTextureGetter);
     }
 
     @Override
     public Collection<ResourceLocation> getTextures() {
-        return Arrays.asList(
-            AssemblerGlassBakedModel.SIDE,
-            AssemblerGlassBakedModel.FACE_A,
-            AssemblerGlassBakedModel.FACE_B,
-            AssemblerGlassBakedModel.FACE_C,
-            AssemblerGlassBakedModel.FULL);
+        return Arrays.asList(AssemblerGlassBakedModel.SIDE, AssemblerGlassBakedModel.FACE_A, AssemblerGlassBakedModel.FACE_B, AssemblerGlassBakedModel.FACE_C, AssemblerGlassBakedModel.FULL);
     }
 
     @Override

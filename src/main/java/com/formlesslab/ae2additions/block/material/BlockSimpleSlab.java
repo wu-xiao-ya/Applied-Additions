@@ -89,9 +89,7 @@ public abstract class BlockSimpleSlab extends BlockSlab {
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return this.isDouble()
-                ? new BlockStateContainer(this, VARIANT)
-                : new BlockStateContainer(this, HALF, VARIANT);
+        return this.isDouble() ? new BlockStateContainer(this, VARIANT) : new BlockStateContainer(this, HALF, VARIANT);
     }
 
     public enum Variant implements IStringSerializable {

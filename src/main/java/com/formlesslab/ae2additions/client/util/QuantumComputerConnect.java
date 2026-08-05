@@ -1,9 +1,10 @@
 package com.formlesslab.ae2additions.client.util;
 
-import java.util.EnumSet;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+
+import java.util.EnumSet;
 
 public final class QuantumComputerConnect {
     private final boolean[][][] connects = new boolean[3][3][3];
@@ -41,6 +42,22 @@ public final class QuantumComputerConnect {
         });
     }
 
+    private static int getIndex(boolean a, boolean b, boolean c) {
+        if (!a && !b) {
+            return 0;
+        }
+        if (a && b && !c) {
+            return 1;
+        }
+        if (!a) {
+            return 2;
+        }
+        if (!b) {
+            return 3;
+        }
+        return -1;
+    }
+
     public int getFace(EnumFacing face) {
         return this.blocked(face) ? -1 : this.face;
     }
@@ -69,14 +86,10 @@ public final class QuantumComputerConnect {
     private int getIndexX(EnumFacing face, int corner) {
         int x = face.getXOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1][1][1 + x], this.connects[1][2][1],
-                    this.connects[1][2][1 + x]);
-            case 1 -> getIndex(this.connects[1][1][1 - x], this.connects[1][2][1],
-                    this.connects[1][2][1 - x]);
-            case 2 -> getIndex(this.connects[1][1][1 + x], this.connects[1][0][1],
-                    this.connects[1][0][1 + x]);
-            case 4 -> getIndex(this.connects[1][1][1 - x], this.connects[1][0][1],
-                    this.connects[1][0][1 - x]);
+            case 0 -> getIndex(this.connects[1][1][1 + x], this.connects[1][2][1], this.connects[1][2][1 + x]);
+            case 1 -> getIndex(this.connects[1][1][1 - x], this.connects[1][2][1], this.connects[1][2][1 - x]);
+            case 2 -> getIndex(this.connects[1][1][1 + x], this.connects[1][0][1], this.connects[1][0][1 + x]);
+            case 4 -> getIndex(this.connects[1][1][1 - x], this.connects[1][0][1], this.connects[1][0][1 - x]);
             default -> -1;
         };
     }
@@ -84,14 +97,10 @@ public final class QuantumComputerConnect {
     private int getIndexY(EnumFacing face, int corner) {
         int y = face.getYOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1][1][2], this.connects[1 - y][1][1],
-                    this.connects[1 - y][1][2]);
-            case 1 -> getIndex(this.connects[1][1][0], this.connects[1 - y][1][1],
-                    this.connects[1 - y][1][0]);
-            case 2 -> getIndex(this.connects[1][1][2], this.connects[1 + y][1][1],
-                    this.connects[1 + y][1][2]);
-            case 4 -> getIndex(this.connects[1][1][0], this.connects[1 + y][1][1],
-                    this.connects[1 + y][1][0]);
+            case 0 -> getIndex(this.connects[1][1][2], this.connects[1 - y][1][1], this.connects[1 - y][1][2]);
+            case 1 -> getIndex(this.connects[1][1][0], this.connects[1 - y][1][1], this.connects[1 - y][1][0]);
+            case 2 -> getIndex(this.connects[1][1][2], this.connects[1 + y][1][1], this.connects[1 + y][1][2]);
+            case 4 -> getIndex(this.connects[1][1][0], this.connects[1 + y][1][1], this.connects[1 + y][1][0]);
             default -> -1;
         };
     }
@@ -99,32 +108,12 @@ public final class QuantumComputerConnect {
     private int getIndexZ(EnumFacing face, int corner) {
         int z = face.getZOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1 - z][1][1], this.connects[1][2][1],
-                    this.connects[1 - z][2][1]);
-            case 1 -> getIndex(this.connects[1 + z][1][1], this.connects[1][2][1],
-                    this.connects[1 + z][2][1]);
-            case 2 -> getIndex(this.connects[1 - z][1][1], this.connects[1][0][1],
-                    this.connects[1 - z][0][1]);
-            case 4 -> getIndex(this.connects[1 + z][1][1], this.connects[1][0][1],
-                    this.connects[1 + z][0][1]);
+            case 0 -> getIndex(this.connects[1 - z][1][1], this.connects[1][2][1], this.connects[1 - z][2][1]);
+            case 1 -> getIndex(this.connects[1 + z][1][1], this.connects[1][2][1], this.connects[1 + z][2][1]);
+            case 2 -> getIndex(this.connects[1 - z][1][1], this.connects[1][0][1], this.connects[1 - z][0][1]);
+            case 4 -> getIndex(this.connects[1 + z][1][1], this.connects[1][0][1], this.connects[1 + z][0][1]);
             default -> -1;
         };
-    }
-
-    private static int getIndex(boolean a, boolean b, boolean c) {
-        if (!a && !b) {
-            return 0;
-        }
-        if (a && b && !c) {
-            return 1;
-        }
-        if (!a) {
-            return 2;
-        }
-        if (!b) {
-            return 3;
-        }
-        return -1;
     }
 
     @Override

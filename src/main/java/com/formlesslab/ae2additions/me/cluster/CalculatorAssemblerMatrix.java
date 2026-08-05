@@ -2,13 +2,8 @@ package com.formlesslab.ae2additions.me.cluster;
 
 import ae2.me.cluster.IAEMultiBlock;
 import ae2.me.cluster.MBCalculator;
-import com.formlesslab.ae2additions.init.AssemblerMatrixConfig;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixCrafter;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixFrame;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixFunction;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixPattern;
-import com.formlesslab.ae2additions.tile.TileAssemblerMatrixWall;
+import com.formlesslab.ae2additions.init.Configurations;
+import com.formlesslab.ae2additions.tile.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -20,14 +15,31 @@ public class CalculatorAssemblerMatrix extends MBCalculator<TileAssemblerMatrixB
         super(tile);
     }
 
+    private static boolean isInternal(BlockPos pos, BlockPos min, BlockPos max) {
+        return pos.getX() > min.getX() && pos.getX() < max.getX() && pos.getY() > min.getY() && pos.getY() < max.getY() && pos.getZ() > min.getZ() && pos.getZ() < max.getZ();
+    }
+
+    private static boolean isEdge(BlockPos pos, BlockPos min, BlockPos max) {
+        int boundaryAxes = 0;
+        if (pos.getX() == min.getX() || pos.getX() == max.getX()) {
+            boundaryAxes++;
+        }
+        if (pos.getY() == min.getY() || pos.getY() == max.getY()) {
+            boundaryAxes++;
+        }
+        if (pos.getZ() == min.getZ() || pos.getZ() == max.getZ()) {
+            boundaryAxes++;
+        }
+        return boundaryAxes >= 2;
+    }
+
     @Override
     public boolean checkMultiblockScale(BlockPos min, BlockPos max) {
         int xSize = max.getX() - min.getX() + 1;
         int ySize = max.getY() - min.getY() + 1;
         int zSize = max.getZ() - min.getZ() + 1;
-        int maxSize = AssemblerMatrixConfig.assemblerMatrixMaxSize;
-        return xSize >= MIN_SIZE && ySize >= MIN_SIZE && zSize >= MIN_SIZE
-            && xSize <= maxSize && ySize <= maxSize && zSize <= maxSize;
+        int maxSize = Configurations.ASSEMBLER_MATRIX.maxSize;
+        return xSize >= MIN_SIZE && ySize >= MIN_SIZE && zSize >= MIN_SIZE && xSize <= maxSize && ySize <= maxSize && zSize <= maxSize;
     }
 
     @Override
@@ -84,25 +96,5 @@ public class CalculatorAssemblerMatrix extends MBCalculator<TileAssemblerMatrixB
     @Override
     public boolean isValidBlockEntity(TileEntity te) {
         return te instanceof TileAssemblerMatrixBase;
-    }
-
-    private static boolean isInternal(BlockPos pos, BlockPos min, BlockPos max) {
-        return pos.getX() > min.getX() && pos.getX() < max.getX()
-            && pos.getY() > min.getY() && pos.getY() < max.getY()
-            && pos.getZ() > min.getZ() && pos.getZ() < max.getZ();
-    }
-
-    private static boolean isEdge(BlockPos pos, BlockPos min, BlockPos max) {
-        int boundaryAxes = 0;
-        if (pos.getX() == min.getX() || pos.getX() == max.getX()) {
-            boundaryAxes++;
-        }
-        if (pos.getY() == min.getY() || pos.getY() == max.getY()) {
-            boundaryAxes++;
-        }
-        if (pos.getZ() == min.getZ() || pos.getZ() == max.getZ()) {
-            boundaryAxes++;
-        }
-        return boundaryAxes >= 2;
     }
 }

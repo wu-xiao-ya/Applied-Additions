@@ -35,9 +35,7 @@ public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase
     protected BlockAssemblerMatrixBase(Class<M> tileClass, Material material) {
         super(material);
         this.setTileEntity(tileClass);
-        this.setDefaultState(this.blockState.getBaseState()
-            .withProperty(FORMED, false)
-            .withProperty(POWERED, false));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FORMED, false).withProperty(POWERED, false));
     }
 
     @Override
@@ -47,9 +45,7 @@ public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase
 
     @Override
     protected IBlockState updateBlockStateFromTileEntity(IBlockState currentState, M tileEntity) {
-        return currentState
-            .withProperty(FORMED, tileEntity.isFormed())
-            .withProperty(POWERED, tileEntity.isPowered());
+        return currentState.withProperty(FORMED, tileEntity.isFormed()).withProperty(POWERED, tileEntity.isPowered());
     }
 
     @Override
@@ -64,9 +60,7 @@ public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return super.getStateFromMeta(meta)
-            .withProperty(FORMED, false)
-            .withProperty(POWERED, false);
+        return super.getStateFromMeta(meta).withProperty(FORMED, false).withProperty(POWERED, false);
     }
 
     @Override
@@ -100,8 +94,7 @@ public abstract class BlockAssemblerMatrixBase<M extends TileAssemblerMatrixBase
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-                                    EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         M tile = this.getTileEntity(world, pos);
         if (tile != null && tile.isFormed() && !player.isSneaking() && this.openAssemblerMatrixGui(world, pos, player)) {
             return true;

@@ -75,12 +75,10 @@ public class GuiReactionChamber extends GuiUpgradeable<ContainerReactionChamber>
 
     @Override
     protected void renderHoveredToolTip(int mouseX, int mouseY) {
-        if (this.drawTankTooltip(mouseX, mouseY, INPUT_TANK, this.container.getHost().getInputTank().getFluid(),
-                this.container.inputFluidAmount)) {
+        if (this.drawTankTooltip(mouseX, mouseY, INPUT_TANK, this.container.getHost().getInputTank().getFluid(), this.container.inputFluidAmount)) {
             return;
         }
-        if (this.drawTankTooltip(mouseX, mouseY, OUTPUT_TANK, this.container.getHost().getOutputTank().getFluid(),
-                this.container.outputFluidAmount)) {
+        if (this.drawTankTooltip(mouseX, mouseY, OUTPUT_TANK, this.container.getHost().getOutputTank().getFluid(), this.container.outputFluidAmount)) {
             return;
         }
         super.renderHoveredToolTip(mouseX, mouseY);

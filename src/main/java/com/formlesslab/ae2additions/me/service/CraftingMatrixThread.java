@@ -70,9 +70,7 @@ public class CraftingMatrixThread {
     }
 
     public boolean acceptJob(IPatternDetails patternDetails, KeyCounter[] table) {
-        if (this.myPattern.isEmpty()
-            && this.gridInv.isEmpty()
-            && patternDetails instanceof IAssemblerPattern pattern) {
+        if (this.myPattern.isEmpty() && this.gridInv.isEmpty() && patternDetails instanceof IAssemblerPattern pattern) {
             this.forcePlan = true;
             this.myPlan = pattern;
             this.fillGrid(table, pattern);
@@ -306,8 +304,7 @@ public class CraftingMatrixThread {
         }
 
         IStorageService storage = grid.getStorageService();
-        long inserted = storage.getInventory()
-            .insert(AEItemKey.of(stack), stack.getCount(), Actionable.MODULATE, this.sourceGetter.get());
+        long inserted = storage.getInventory().insert(AEItemKey.of(stack), stack.getCount(), Actionable.MODULATE, this.sourceGetter.get());
         if (inserted <= 0) {
             return stack;
         }
@@ -343,6 +340,10 @@ public class CraftingMatrixThread {
         this.host.saveChanges();
     }
 
+    public interface SignalAccepter {
+        void send(boolean signal);
+    }
+
     private static class CraftingGridFilter implements IAEItemFilter {
         @Override
         public boolean allowExtract(InternalInventory inv, int slot, int amount) {
@@ -353,9 +354,5 @@ public class CraftingMatrixThread {
         public boolean allowInsert(InternalInventory inv, int slot, ItemStack stack) {
             return false;
         }
-    }
-
-    public interface SignalAccepter {
-        void send(boolean signal);
     }
 }

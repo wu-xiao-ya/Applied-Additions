@@ -21,8 +21,7 @@ public class BlockAssemblerMatrixGlass extends BlockAssemblerMatrixBase<TileAsse
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return new ExtendedBlockState(this, new IProperty<?>[] {FORMED, POWERED},
-            new IUnlistedProperty<?>[] {FORWARD, UP, AssemblerGlassConnectProperty.INSTANCE});
+        return new ExtendedBlockState(this, new IProperty<?>[]{FORMED, POWERED}, new IUnlistedProperty<?>[]{FORWARD, UP, AssemblerGlassConnectProperty.INSTANCE});
     }
 
     @Override
@@ -32,8 +31,7 @@ public class BlockAssemblerMatrixGlass extends BlockAssemblerMatrixBase<TileAsse
             return state;
         }
 
-        AssemblerGlassConnect connect = AssemblerGlassConnect.from(pos,
-            (x, y, z) -> world.getBlockState(pos.add(x, y, z)).getBlock() instanceof BlockAssemblerMatrixGlass);
+        AssemblerGlassConnect connect = AssemblerGlassConnect.from(pos, (x, y, z) -> world.getBlockState(pos.add(x, y, z)).getBlock() instanceof BlockAssemblerMatrixGlass);
         return ((IExtendedBlockState) state).withProperty(AssemblerGlassConnectProperty.INSTANCE, connect);
     }
 
@@ -50,7 +48,6 @@ public class BlockAssemblerMatrixGlass extends BlockAssemblerMatrixBase<TileAsse
     @Override
     @SuppressWarnings("deprecation")
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        return !(blockAccess.getBlockState(pos.offset(side)).getBlock() instanceof BlockAssemblerMatrixGlass)
-            && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+        return !(blockAccess.getBlockState(pos.offset(side)).getBlock() instanceof BlockAssemblerMatrixGlass) && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
     }
 }

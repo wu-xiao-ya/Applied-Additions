@@ -71,9 +71,7 @@ public class ContainerWirelessHub extends UpgradeableContainer<TileWirelessHub> 
         public PortState(ByteBuf data) {
             for (int i = 0; i < TileWirelessHub.MAX_PORTS; i++) {
                 int statusOrdinal = data.readUnsignedByte();
-                this.statuses[i] = statusOrdinal >= 0 && statusOrdinal < WirelessStatus.values().length
-                        ? WirelessStatus.values()[statusOrdinal]
-                        : WirelessStatus.UNCONNECTED;
+                this.statuses[i] = statusOrdinal >= 0 && statusOrdinal < WirelessStatus.values().length ? WirelessStatus.values()[statusOrdinal] : WirelessStatus.UNCONNECTED;
                 this.hasRemote[i] = data.readBoolean();
                 this.remoteX[i] = data.readInt();
                 this.remoteY[i] = data.readInt();
@@ -100,6 +98,20 @@ public class ContainerWirelessHub extends UpgradeableContainer<TileWirelessHub> 
                 }
             }
             return state;
+        }
+
+        private static int getRemoteChannels(TileWirelessHub host, BlockPos remote) {
+            TileEntity tile = host.getWorld() != null && host.getWorld().isBlockLoaded(remote) ? host.getWorld().getTileEntity(remote) : null;
+            if (tile instanceof TileWirelessConnector connector) {
+                return connector.getUsedChannels();
+            }
+            if (tile instanceof TileWirelessHub hub) {
+                return hub.getUsedChannels();
+            }
+            if (tile instanceof IGridConnectedTile gridHost && gridHost.getMainNode().getNode() != null) {
+                return gridHost.getMainNode().getNode().getUsedChannels();
+            }
+            return 0;
         }
 
         @Override
@@ -136,22 +148,6 @@ public class ContainerWirelessHub extends UpgradeableContainer<TileWirelessHub> 
 
         public int getRemoteChannels(int port) {
             return isValidPort(port) ? this.remoteChannels[port] : 0;
-        }
-
-        private static int getRemoteChannels(TileWirelessHub host, BlockPos remote) {
-            TileEntity tile = host.getWorld() != null && host.getWorld().isBlockLoaded(remote)
-                ? host.getWorld().getTileEntity(remote)
-                : null;
-            if (tile instanceof TileWirelessConnector connector) {
-                return connector.getUsedChannels();
-            }
-            if (tile instanceof TileWirelessHub hub) {
-                return hub.getUsedChannels();
-            }
-            if (tile instanceof IGridConnectedTile gridHost && gridHost.getMainNode().getNode() != null) {
-                return gridHost.getMainNode().getNode().getUsedChannels();
-            }
-            return 0;
         }
 
         private boolean isValidPort(int port) {

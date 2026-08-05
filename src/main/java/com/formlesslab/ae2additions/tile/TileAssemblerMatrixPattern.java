@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction
-    implements InternalInventoryHost, ICraftingProvider, PatternContainer {
+public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction implements InternalInventoryHost, ICraftingProvider, PatternContainer {
 
     public static final int INV_SIZE = 36;
 
@@ -142,11 +141,7 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction
 
     @Override
     public boolean pushPattern(IPatternDetails patternDetails, KeyCounter[] inputHolder, int craftCount) {
-        if (!isFormed()
-            || !this.getMainNode().isActive()
-            || !(patternDetails instanceof IAssemblerPattern)
-            || !this.patterns.contains(patternDetails)
-            || this.cluster == null) {
+        if (!isFormed() || !this.getMainNode().isActive() || !(patternDetails instanceof IAssemblerPattern) || !this.patterns.contains(patternDetails) || this.cluster == null) {
             return false;
         }
         return this.cluster.pushCraftingJob(patternDetails, inputHolder, craftCount);
@@ -159,11 +154,7 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction
 
     @Override
     public int getMaxPatternPushMultiplier(IPatternDetails patternDetails, int maxMultiplier) {
-        if (maxMultiplier <= 0
-            || !(patternDetails instanceof IAssemblerPattern)
-            || !this.patterns.contains(patternDetails)
-            || this.cluster == null
-            || this.cluster.isBusy()) {
+        if (maxMultiplier <= 0 || !(patternDetails instanceof IAssemblerPattern) || !this.patterns.contains(patternDetails) || this.cluster == null || this.cluster.isBusy()) {
             return 0;
         }
         return 1;
@@ -207,18 +198,12 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction
         }
         AEItemKey icon = AEItemKey.of(iconStack);
         ITextComponent name = this.hasCustomName() ? new TextComponentString(this.getCustomName()) : icon.getDisplayName();
-        return new PatternContainerGroup(
-            icon,
-            name,
-            List.of(new TextComponentTranslation("gui.ae2additions.assembler_matrix.pattern"))
-        );
+        return new PatternContainerGroup(icon, name, List.of(new TextComponentTranslation("gui.ae2additions.assembler_matrix.pattern")));
     }
 
     private record BlockPosBits(int x, int y, int z) {
         long asLong() {
-            return ((long) (this.x & 0x3FFFFFF) << 38)
-                | ((long) (this.z & 0x3FFFFFF) << 12)
-                | (this.y & 0xFFF);
+            return ((long) (this.x & 0x3FFFFFF) << 38) | ((long) (this.z & 0x3FFFFFF) << 12) | (this.y & 0xFFF);
         }
     }
 

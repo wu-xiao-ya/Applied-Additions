@@ -8,11 +8,6 @@ import com.formlesslab.ae2additions.client.util.CraftingStatusCpuGrouping;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadata;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadataProvider;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.IntSupplier;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
@@ -22,6 +17,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.IntSupplier;
 
 @Mixin(value = CPUSelectionList.class, remap = false)
 public abstract class MixinCPUSelectionList {
@@ -103,33 +104,16 @@ public abstract class MixinCPUSelectionList {
             }
 
             int y = firstRowY + (absoluteIndex - from) * rowStep;
-            boolean startsGroup = !ae2additions$isSameGroup(
-                absoluteIndex - 1, metadata.clusterId(), metadataBySerial);
-            boolean endsGroup = !ae2additions$isSameGroup(
-                absoluteIndex + 1, metadata.clusterId(), metadataBySerial);
+            boolean startsGroup = !ae2additions$isSameGroup(absoluteIndex - 1, metadata.clusterId(), metadataBySerial);
+            boolean endsGroup = !ae2additions$isSameGroup(absoluteIndex + 1, metadata.clusterId(), metadataBySerial);
 
             Gui.drawRect(x - 1, y, x, y + rowStep, ae2additions$QUANTUM_GROUP_COLOR);
-            Gui.drawRect(
-                x + ae2additions$ROW_WIDTH,
-                y,
-                x + ae2additions$ROW_WIDTH + 1,
-                y + rowStep,
-                ae2additions$QUANTUM_GROUP_COLOR);
+            Gui.drawRect(x + ae2additions$ROW_WIDTH, y, x + ae2additions$ROW_WIDTH + 1, y + rowStep, ae2additions$QUANTUM_GROUP_COLOR);
             if (startsGroup) {
-                Gui.drawRect(
-                    x - 1,
-                    y - 1,
-                    x + ae2additions$ROW_WIDTH + 1,
-                    y,
-                    ae2additions$QUANTUM_GROUP_COLOR);
+                Gui.drawRect(x - 1, y - 1, x + ae2additions$ROW_WIDTH + 1, y, ae2additions$QUANTUM_GROUP_COLOR);
             }
             if (endsGroup) {
-                Gui.drawRect(
-                    x - 1,
-                    y + ae2additions$ROW_HEIGHT,
-                    x + ae2additions$ROW_WIDTH + 1,
-                    y + ae2additions$ROW_HEIGHT + 1,
-                    ae2additions$QUANTUM_GROUP_COLOR);
+                Gui.drawRect(x - 1, y + ae2additions$ROW_HEIGHT, x + ae2additions$ROW_WIDTH + 1, y + ae2additions$ROW_HEIGHT + 1, ae2additions$QUANTUM_GROUP_COLOR);
             }
         }
     }
@@ -143,11 +127,7 @@ public abstract class MixinCPUSelectionList {
     }
 
     @Unique
-    private boolean ae2additions$isSameGroup(
-        int index,
-        int clusterId,
-        Map<Integer, CraftingStatusCpuMetadata> metadataBySerial
-    ) {
+    private boolean ae2additions$isSameGroup(int index, int clusterId, Map<Integer, CraftingStatusCpuMetadata> metadataBySerial) {
         if (index < 0 || index >= this.visibleCpus.size()) {
             return false;
         }

@@ -47,6 +47,14 @@ public class GuiWirelessHub extends GuiUpgradeable<ContainerWirelessHub> {
         }
     }
 
+    private static boolean isConnectedForDisplay(WirelessStatus status, boolean hasRemote) {
+        return hasRemote && (status == WirelessStatus.WORKING || status == WirelessStatus.NO_POWER);
+    }
+
+    private static BlockPos remotePos(ContainerWirelessHub.PortState ports, int port) {
+        return new BlockPos(ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port));
+    }
+
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
@@ -63,19 +71,9 @@ public class GuiWirelessHub extends GuiUpgradeable<ContainerWirelessHub> {
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
         int textColor = this.style.getColor(PaletteColor.DEFAULT_TEXT_COLOR).toARGB() & 0xFFFFFF;
         Point powerPos = this.resolveWidget("powerText");
-        this.fontRenderer.drawString(
-            new TextComponentTranslation("gui.ae2additions.power",
-                Platform.formatPower(this.container.powerUse, true)).getFormattedText(),
-                powerPos.x(),
-                powerPos.y(),
-            textColor);
+        this.fontRenderer.drawString(new TextComponentTranslation("gui.ae2additions.power", Platform.formatPower(this.container.powerUse, true)).getFormattedText(), powerPos.x(), powerPos.y(), textColor);
         Point channelsPos = this.resolveWidget("channelsText");
-        this.fontRenderer.drawString(
-            new TextComponentTranslation("gui.ae2additions.channels",
-                this.container.usedChannels, this.container.maxChannels).getFormattedText(),
-                channelsPos.x(),
-                channelsPos.y(),
-            textColor);
+        this.fontRenderer.drawString(new TextComponentTranslation("gui.ae2additions.channels", this.container.usedChannels, this.container.maxChannels).getFormattedText(), channelsPos.x(), channelsPos.y(), textColor);
 
         ContainerWirelessHub.PortState ports = this.container.ports;
         for (int i = 0; i < TileWirelessHub.MAX_PORTS; i++) {
@@ -109,9 +107,7 @@ public class GuiWirelessHub extends GuiUpgradeable<ContainerWirelessHub> {
         lines.add(new TextComponentTranslation("gui.ae2additions.hub.port", port + 1));
         lines.add(new TextComponentTranslation(GuiWirelessConnector.statusKey(ports.getStatus(port))));
         if (ports.hasRemote(port)) {
-            lines.add(new TextComponentTranslation("gui.ae2additions.remote_channel",
-                ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port),
-                ports.getRemoteChannels(port)));
+            lines.add(new TextComponentTranslation("gui.ae2additions.remote_channel", ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port), ports.getRemoteChannels(port)));
         } else {
             lines.add(new TextComponentTranslation("gui.ae2additions.hub.empty_port.tooltip"));
         }
@@ -122,19 +118,8 @@ public class GuiWirelessHub extends GuiUpgradeable<ContainerWirelessHub> {
         ContainerWirelessHub.PortState ports = this.container.ports;
         if (Minecraft.getMinecraft().player != null && ports.hasRemote(port)) {
             WirelessHighlightHandler.INSTANCE.highlight(remotePos(ports, port));
-            Minecraft.getMinecraft().player.sendStatusMessage(
-                new TextComponentTranslation("chat.ae2additions.highlight",
-                    ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port)),
-                false);
+            Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentTranslation("chat.ae2additions.highlight", ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port)), false);
         }
-    }
-
-    private static boolean isConnectedForDisplay(WirelessStatus status, boolean hasRemote) {
-        return hasRemote && (status == WirelessStatus.WORKING || status == WirelessStatus.NO_POWER);
-    }
-
-    private static BlockPos remotePos(ContainerWirelessHub.PortState ports, int port) {
-        return new BlockPos(ports.getRemoteX(port), ports.getRemoteY(port), ports.getRemoteZ(port));
     }
 
     private int hoveredPort(int mouseX, int mouseY) {

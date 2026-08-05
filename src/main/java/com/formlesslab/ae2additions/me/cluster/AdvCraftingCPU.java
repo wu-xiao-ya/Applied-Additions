@@ -14,12 +14,13 @@ import ae2.crafting.execution.ElapsedTimeTracker;
 import ae2.crafting.inv.ListCraftingInventory;
 import ae2.me.cluster.implementations.CraftingCPUCluster;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
-import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class AdvCraftingCPU extends CraftingCPUCluster {
     final UUID uniqueId;
@@ -79,12 +80,7 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
     }
 
     @Override
-    public ICraftingSubmitResult submitJob(
-        IGrid grid,
-        ICraftingPlan plan,
-        IActionSource src,
-        @Nullable ICraftingRequester requester
-    ) {
+    public ICraftingSubmitResult submitJob(IGrid grid, ICraftingPlan plan, IActionSource src, @Nullable ICraftingRequester requester) {
         if (this.uniqueId == null) {
             return this.parent.submitJob(grid, plan, src, requester);
         }

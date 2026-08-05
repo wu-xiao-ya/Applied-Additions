@@ -12,6 +12,7 @@ import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.entity.player.InventoryPlayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import net.minecraft.entity.player.InventoryPlayer;
 
 @Mixin(value = ContainerCraftingStatus.class, remap = false)
 public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU implements CraftingStatusCpuMetadataProvider {
@@ -46,12 +46,7 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
         super(playerInventory, host);
     }
 
-    @Inject(
-        method = "detectAndSendChanges",
-        at = @At(
-            value = "INVOKE",
-            target = "Lae2/container/implementations/ContainerCraftingCPU;detectAndSendChanges()V",
-            shift = At.Shift.BEFORE))
+    @Inject(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lae2/container/implementations/ContainerCraftingCPU;detectAndSendChanges()V", shift = At.Shift.BEFORE))
     private void ae2additions$groupQuantumComputerCpus(CallbackInfo ci) {
         if (!this.isServerSide()) {
             return;
@@ -71,8 +66,7 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
         }
 
         List<Integer> orderedSerials = CraftingStatusCpuGrouping.orderSerials(serials, metadataBySerial);
-        ObjectArrayList<ContainerCraftingStatus.CraftingCpuListEntry> orderedEntries =
-            new ObjectArrayList<>(orderedSerials.size());
+        ObjectArrayList<ContainerCraftingStatus.CraftingCpuListEntry> orderedEntries = new ObjectArrayList<>(orderedSerials.size());
         for (Integer serial : orderedSerials) {
             ContainerCraftingStatus.CraftingCpuListEntry entry = entriesBySerial.get(serial);
             if (entry != null) {
@@ -106,10 +100,7 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
                 continue;
             }
 
-            metadataBySerial.put(serial, new CraftingStatusCpuMetadata(
-                serial,
-                cluster.getGuiClusterId(),
-                cluster.getRemainingCapacityCPU() == quantumCpu));
+            metadataBySerial.put(serial, new CraftingStatusCpuMetadata(serial, cluster.getGuiClusterId(), cluster.getRemainingCapacityCPU() == quantumCpu));
         }
         return metadataBySerial;
     }

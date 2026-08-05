@@ -58,8 +58,7 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         this.searchField = this.widgets.addTextField("search");
         this.searchField.setResponder(_ -> this.refreshList());
         this.searchField.setPlaceholder(GuiText.SearchPlaceholder.text());
-        this.searchField.setTooltipMessage(Collections.singletonList(
-            new TextComponentTranslation("gui.ae2additions.assembler_matrix.tooltip")));
+        this.searchField.setTooltipMessage(Collections.singletonList(new TextComponentTranslation("gui.ae2additions.assembler_matrix.tooltip")));
 
         MatrixIconButton cancel = new MatrixIconButton(() -> Icon.CLEAR, this.container::requestCancel);
         cancel.setMessage(new TextComponentTranslation("gui.ae2additions.assembler_matrix.cancel"));
@@ -68,6 +67,20 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         this.patternShowButton = new MatrixIconButton(this::patternModeIcon, this::togglePatternMode);
         this.patternShowButton.setMessage(GuiText.PatternAccessTerminalHint.text());
         this.addToLeftToolbar(this.patternShowButton);
+    }
+
+    private static List<String> tokenize(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        String[] split = value.toLowerCase(Locale.ROOT).trim().split("\\s+");
+        ArrayList<String> tokens = new ArrayList<>(split.length);
+        for (String token : split) {
+            if (!token.isEmpty()) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
     }
 
     @Override
@@ -89,8 +102,7 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         this.refreshVisibleSlots();
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (isMouseOverThreadText(mouseX - this.guiLeft, mouseY - this.guiTop)) {
-            this.drawTooltipLines(mouseX, mouseY, Collections.singletonList(
-                I18n.format("gui.ae2additions.assembler_matrix.threads", this.runningThreads)));
+            this.drawTooltipLines(mouseX, mouseY, Collections.singletonList(I18n.format("gui.ae2additions.assembler_matrix.threads", this.runningThreads)));
         }
     }
 
@@ -99,11 +111,7 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
         int textColor = this.style.getColor(PaletteColor.DEFAULT_TEXT_COLOR).toARGB() & 0xFFFFFF;
         Point threadPos = this.resolveWidget("threadText");
-        this.fontRenderer.drawString(
-            I18n.format("gui.ae2additions.assembler_matrix.threads", this.runningThreads),
-                threadPos.x(),
-                threadPos.y(),
-            textColor);
+        this.fontRenderer.drawString(I18n.format("gui.ae2additions.assembler_matrix.threads", this.runningThreads), threadPos.x(), threadPos.y(), textColor);
         if (!this.searchField.getText().isEmpty()) {
             for (AssemblerMatrixSlot slot : this.visibleSlots) {
                 int color = containsMatched(slot.getStack()) ? 0x8A00FF00 : 0x6A000000;
@@ -146,11 +154,7 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         if (slot instanceof AssemblerMatrixSlot machineSlot) {
             InventoryAction action = getAction(mouseButton, clickType);
             if (action != null) {
-                InitNetwork.sendToServer(new InventoryActionPacket(
-                    this.container.windowId,
-                    action,
-                    -machineSlot.getActualSlot() - 1,
-                    machineSlot.getPatternId()));
+                InitNetwork.sendToServer(new InventoryActionPacket(this.container.windowId, action, -machineSlot.getActualSlot() - 1, machineSlot.getPatternId()));
             }
             return;
         }
@@ -201,13 +205,7 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
             }
             PatternRow row = this.rows.get(sourceIndex);
             for (int col = 0; col < row.slots; col++) {
-                AssemblerMatrixSlot slot = new AssemblerMatrixSlot(
-                    row.inventory,
-                    col,
-                    row.offset,
-                    row.id,
-                    col * SLOT_SIZE + GUI_PADDING_X,
-                    (rowIndex + 1) * SLOT_SIZE + 13);
+                AssemblerMatrixSlot slot = new AssemblerMatrixSlot(row.inventory, col, row.offset, row.id, col * SLOT_SIZE + GUI_PADDING_X, (rowIndex + 1) * SLOT_SIZE + 13);
                 this.container.addClientSideSlot(slot, SlotSemantics.STORAGE);
                 this.visibleSlots.add(slot);
             }
@@ -310,25 +308,17 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
 
     private InventoryAction getAction(int mouseButton, ClickType clickType) {
         return switch (clickType) {
-            case PICKUP -> mouseButton == 1 ? InventoryAction.SPLIT_OR_PLACE_SINGLE : InventoryAction.PICKUP_OR_SET_DOWN;
+            case PICKUP ->
+                    mouseButton == 1 ? InventoryAction.SPLIT_OR_PLACE_SINGLE : InventoryAction.PICKUP_OR_SET_DOWN;
             case QUICK_MOVE -> mouseButton == 1 ? InventoryAction.PICKUP_SINGLE : InventoryAction.SHIFT_CLICK;
-            case CLONE -> this.mc.player != null && this.mc.player.capabilities.isCreativeMode ? InventoryAction.CREATIVE_DUPLICATE : null;
+            case CLONE ->
+                    this.mc.player != null && this.mc.player.capabilities.isCreativeMode ? InventoryAction.CREATIVE_DUPLICATE : null;
             default -> null;
         };
     }
 
-    private static List<String> tokenize(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return Collections.emptyList();
-        }
-        String[] split = value.toLowerCase(Locale.ROOT).trim().split("\\s+");
-        ArrayList<String> tokens = new ArrayList<>(split.length);
-        for (String token : split) {
-            if (!token.isEmpty()) {
-                tokens.add(token);
-            }
-        }
-        return tokens;
+    private interface IconSupplier {
+        Icon get();
     }
 
     private static class PatternInfo {
@@ -379,9 +369,5 @@ public class GuiAssemblerMatrix<T extends AEBaseContainer & AssemblerMatrixMenu>
         protected Icon getIcon() {
             return this.icon.get();
         }
-    }
-
-    private interface IconSupplier {
-        Icon get();
     }
 }

@@ -24,6 +24,20 @@ public record CraftingStatusCpuMetadataList(List<CraftingStatusCpuMetadata> entr
         this(readEntries(data));
     }
 
+    private static List<CraftingStatusCpuMetadata> readEntries(ByteBuf data) {
+        PacketBuffer buffer = new PacketBuffer(data);
+        int count = buffer.readInt();
+        if (count < 0 || count > MAX_METADATA_ENTRIES || count > buffer.readableBytes() / METADATA_ENTRY_BYTES) {
+            throw new IllegalArgumentException("Invalid crafting CPU metadata entry count: " + count);
+        }
+
+        ObjectList<CraftingStatusCpuMetadata> entries = new ObjectArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            entries.add(CraftingStatusCpuMetadata.readFromPacket(buffer));
+        }
+        return List.copyOf(entries);
+    }
+
     @Override
     public void writeToPacket(ByteBuf data) {
         PacketBuffer buffer = new PacketBuffer(data);
@@ -39,19 +53,5 @@ public record CraftingStatusCpuMetadataList(List<CraftingStatusCpuMetadata> entr
             result.put(entry.serial(), entry);
         }
         return result;
-    }
-
-    private static List<CraftingStatusCpuMetadata> readEntries(ByteBuf data) {
-        PacketBuffer buffer = new PacketBuffer(data);
-        int count = buffer.readInt();
-        if (count < 0 || count > MAX_METADATA_ENTRIES || count > buffer.readableBytes() / METADATA_ENTRY_BYTES) {
-            throw new IllegalArgumentException("Invalid crafting CPU metadata entry count: " + count);
-        }
-
-        ObjectList<CraftingStatusCpuMetadata> entries = new ObjectArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            entries.add(CraftingStatusCpuMetadata.readFromPacket(buffer));
-        }
-        return List.copyOf(entries);
     }
 }

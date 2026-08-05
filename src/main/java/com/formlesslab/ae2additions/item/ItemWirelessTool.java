@@ -26,8 +26,7 @@ public class ItemWirelessTool extends Item {
     public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         if (WirelessLinking.hasLocator(stack)) {
             BlockPos pos = WirelessLinking.getLocatorPos(stack);
-            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation(
-                "wireless.tooltip", pos.getX(), pos.getY(), pos.getZ()).getFormattedText());
+            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("wireless.tooltip", pos.getX(), pos.getY(), pos.getZ()).getFormattedText());
             tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("wireless.use.tooltip.02").getFormattedText());
         } else {
             tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("wireless.use.tooltip.01").getFormattedText());

@@ -15,7 +15,7 @@ import ae2.tile.grid.AENetworkedTile;
 import com.formlesslab.ae2additions.api.WirelessEndpoint;
 import com.formlesslab.ae2additions.api.WirelessNode;
 import com.formlesslab.ae2additions.api.WirelessStatus;
-import com.formlesslab.ae2additions.init.ModConfig;
+import com.formlesslab.ae2additions.init.Configurations;
 import com.formlesslab.ae2additions.init.ModContent;
 import com.formlesslab.ae2additions.wireless.WirelessConnection;
 import io.netty.buffer.ByteBuf;
@@ -32,19 +32,28 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-public class TileWirelessHub extends AENetworkedTile
-    implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessEndpoint {
+public class TileWirelessHub extends AENetworkedTile implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessEndpoint {
 
     public static final int MAX_PORTS = 8;
     private final boolean[] updateStatus = new boolean[MAX_PORTS];
     private final long[] frequencies = new long[MAX_PORTS];
     private final WirelessConnection[] connections = new WirelessConnection[MAX_PORTS];
-    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(
-        Item.getItemFromBlock(ModContent.WIRELESS_HUB), 4, this::onUpgradesChanged);
     private double powerUse = 1.0;
+    @Override
+    protected boolean readFromStream(ByteBuf data) {
+        boolean changed = super.readFromStream(data);
+        AEColor oldColor = this.color;
+        boolean oldConnected = this.clientConnected;
+
+        int colorOrdinal = data.readUnsignedByte();
+        this.color = colorOrdinal >= 0 && colorOrdinal < AEColor.values().length ? AEColor.values()[colorOrdinal] : AEColor.TRANSPARENT;
+        this.clientConnected = data.readBoolean();
+        this.getMainNode().setGridColor(this.color);
+
+        return changed || oldColor != this.color || oldConnected != this.clientConnected;
+    }    private final IUpgradeInventory upgrades = UpgradeInventories.forMachine(Item.getItemFromBlock(ModContent.WIRELESS_HUB), 4, this::onUpgradesChanged);
     private AEColor color = AEColor.TRANSPARENT;
     private boolean clientConnected;
-
     public TileWirelessHub() {
         this.getMainNode().setFlags(GridFlags.DENSE_CAPACITY);
         this.getMainNode().setIdlePowerUsage(this.powerUse);
@@ -311,27 +320,6 @@ public class TileWirelessHub extends AENetworkedTile
         data.writeBoolean(this.isConnected());
     }
 
-    @Override
-    protected boolean readFromStream(ByteBuf data) {
-        boolean changed = super.readFromStream(data);
-        AEColor oldColor = this.color;
-        boolean oldConnected = this.clientConnected;
-
-        int colorOrdinal = data.readUnsignedByte();
-        this.color = colorOrdinal >= 0 && colorOrdinal < AEColor.values().length
-            ? AEColor.values()[colorOrdinal]
-            : AEColor.TRANSPARENT;
-        this.clientConnected = data.readBoolean();
-        this.getMainNode().setGridColor(this.color);
-
-        return changed || oldColor != this.color || oldConnected != this.clientConnected;
-    }
-
-    private void onUpgradesChanged() {
-        this.updatePowerUsage();
-        this.saveChanges();
-    }
-
     private void updatePowerUsage() {
         double discount = 1.0 - 0.1 * this.upgrades.getInstalledUpgrades(AEItems.ENERGY_CARD.item());
         boolean anyRunning = false;
@@ -339,46 +327,54 @@ public class TileWirelessHub extends AENetworkedTile
         for (WirelessConnection connection : this.connections) {
             if (connection.isConnected()) {
                 double distance = Math.max(connection.getDistance(), Math.E);
-                this.powerUse += Math.max(1.0, distance * Math.log(distance) * discount)
-                    * ModConfig.wirelessConnectorPowerMultiplier;
+                this.powerUse += Math.max(1.0, distance * Math.log(distance) * discount) * Configurations.WIRELESS.powerMultiplier;
                 anyRunning = true;
             }
         }
         if (!anyRunning) {
-            this.powerUse = ModConfig.wirelessConnectorPowerMultiplier;
+            this.powerUse = Configurations.WIRELESS.powerMultiplier;
         }
         this.getMainNode().setIdlePowerUsage(this.powerUse);
+    }
+
+    private void onUpgradesChanged() {
+        this.updatePowerUsage();
+        this.saveChanges();
+    }
+
+    private record PortNode(TileWirelessHub hub, int port) implements WirelessNode {
+
+        @Override
+        public long getFrequency() {
+            return this.hub.frequencies[this.port];
+        }
+
+        @Override
+        public World getWirelessWorld() {
+            return this.hub.getWorld();
+        }
+
+        @Override
+        public BlockPos getWirelessPos() {
+            return this.hub.getPos();
+        }
+
+        @Override
+        public IGridNode getWirelessGridNode() {
+            return this.hub.getMainNode().getNode();
+        }
+
+        @Override
+        public TileEntity getWirelessTile() {
+            return this.hub;
+        }
     }
 
     private boolean isValidPort(int port) {
         return port >= 0 && port < MAX_PORTS;
     }
 
-    private record PortNode(TileWirelessHub hub, int port) implements WirelessNode {
 
-        @Override
-            public long getFrequency() {
-                return this.hub.frequencies[this.port];
-            }
 
-            @Override
-            public World getWirelessWorld() {
-                return this.hub.getWorld();
-            }
 
-            @Override
-            public BlockPos getWirelessPos() {
-                return this.hub.getPos();
-            }
-
-            @Override
-            public IGridNode getWirelessGridNode() {
-                return this.hub.getMainNode().getNode();
-            }
-
-            @Override
-            public TileEntity getWirelessTile() {
-                return this.hub;
-            }
-        }
 }

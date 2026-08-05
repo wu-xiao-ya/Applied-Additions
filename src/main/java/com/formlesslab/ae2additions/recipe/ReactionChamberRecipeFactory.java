@@ -42,8 +42,7 @@ public class ReactionChamberRecipeFactory implements IRecipeFactory {
         }
         if (json.has("fluidOutput")) {
             JsonObject output = JsonUtils.getJsonObject(json, "fluidOutput");
-            fluidOutput = new FluidStack(readFluid(JsonUtils.getString(output, "id")),
-                    JsonUtils.getInt(output, "amount"));
+            fluidOutput = new FluidStack(readFluid(JsonUtils.getString(output, "id")), JsonUtils.getInt(output, "amount"));
         }
         if (itemOutput.isEmpty() && fluidOutput == null) {
             throw new JsonParseException("Reaction chamber recipe must define itemOutput or fluidOutput");

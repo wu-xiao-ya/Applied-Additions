@@ -7,7 +7,7 @@ import ae2.api.networking.IGridNode;
 import ae2.api.networking.security.IActionHost;
 import com.formlesslab.ae2additions.AppliedAdditions;
 import com.formlesslab.ae2additions.api.WirelessNode;
-import com.formlesslab.ae2additions.init.ModConfig;
+import com.formlesslab.ae2additions.init.Configurations;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -80,9 +80,7 @@ public class WirelessConnection implements IActionHost {
 
         if (remote != null && remote.host != null) {
             this.distance = Math.sqrt(this.host.getWirelessPos().distanceSq(remote.host.getWirelessPos()));
-            if (this.isActive() && remote.isActive()
-                && this.host.getWirelessWorld() == remote.host.getWirelessWorld()
-                && this.distance <= ModConfig.wirelessConnectorMaxRange) {
+            if (this.isActive() && remote.isActive() && this.host.getWirelessWorld() == remote.host.getWirelessWorld() && this.distance <= Configurations.WIRELESS.maxRange) {
                 this.shutdown = false;
                 ensureConnection(remote);
             }

@@ -24,8 +24,7 @@ public class ReactionChamberRecipeCategory implements IRecipeCategory<ReactionCh
         this.background = guiHelper.createDrawable(TEXTURE, 5, 15, 168, 75);
         this.icon = guiHelper.createDrawableIngredient(new ItemStack(ModContent.REACTION_CHAMBER));
         IDrawableStatic progressDrawable = guiHelper.createDrawable(TEXTURE, 176, 0, 6, 18);
-        this.progress = guiHelper.createAnimatedDrawable(progressDrawable, 40,
-                IDrawableAnimated.StartDirection.BOTTOM, false);
+        this.progress = guiHelper.createAnimatedDrawable(progressDrawable, 40, IDrawableAnimated.StartDirection.BOTTOM, false);
     }
 
     @Override

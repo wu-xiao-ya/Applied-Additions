@@ -20,13 +20,6 @@ import ae2.me.helpers.MachineSource;
 import ae2.tile.crafting.TileCraftingMonitor;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -36,16 +29,16 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class AdvCraftingCPUCluster implements IAECluster {
-    private static int nextGuiClusterId = 1;
+import java.util.*;
 
+public class AdvCraftingCPUCluster implements IAECluster {
     private static final String TAG_CPUS = "cpus";
     private static final String TAG_CPU_LIST_COMPAT = "cpuList";
     private static final String TAG_KEY = "key";
     private static final String TAG_BYTES = "bytes";
     private static final String TAG_CPU = "cpu";
     private static final String TAG_CONFIG = "config";
-
+    private static int nextGuiClusterId = 1;
     private final BlockPos boundsMin;
     private final BlockPos boundsMax;
     private final int guiClusterId;
@@ -53,8 +46,8 @@ public class AdvCraftingCPUCluster implements IAECluster {
     private final Map<UUID, AdvCraftingCPU> activeCpus = new HashMap<>();
     private final List<TileAdvCraftingBlock> quantumBlockEntities = new ObjectArrayList<>();
     private final List<TileCraftingMonitor> status = new ArrayList<>();
-    private AdvCraftingCPU remainingStorageCpu;
     private final IConfigManager configManager;
+    private AdvCraftingCPU remainingStorageCpu;
     private ITextComponent myName = null;
     private boolean destroyed = false;
     private long storage = 0;
@@ -71,9 +64,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
         this.boundsMax = boundsMax.toImmutable();
         this.guiClusterId = nextGuiClusterId++;
 
-        this.configManager = IConfigManager.builder(this::markDirty)
-                .registerSetting(Settings.CPU_SELECTION_MODE, CpuSelectionMode.ANY)
-                .build();
+        this.configManager = IConfigManager.builder(this::markDirty).registerSetting(Settings.CPU_SELECTION_MODE, CpuSelectionMode.ANY).build();
     }
 
     public Iterator<TileAdvCraftingBlock> getQuantumBlockEntities() {
@@ -171,12 +162,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
         this.killCpu(id, true);
     }
 
-    public ICraftingSubmitResult submitJob(
-        IGrid grid,
-        ICraftingPlan plan,
-        IActionSource src,
-        ICraftingRequester requester
-    ) {
+    public ICraftingSubmitResult submitJob(IGrid grid, ICraftingPlan plan, IActionSource src, ICraftingRequester requester) {
         if (!this.isActive()) {
             return CraftingSubmitResult.CPU_OFFLINE;
         }
@@ -233,10 +219,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
         if (this.machineSrc == null) {
             return null;
         }
-        return this.machineSrc.machine()
-            .filter(TileAdvCraftingBlock.class::isInstance)
-            .map(TileAdvCraftingBlock.class::cast)
-            .orElse(null);
+        return this.machineSrc.machine().filter(TileAdvCraftingBlock.class::isInstance).map(TileAdvCraftingBlock.class::cast).orElse(null);
     }
 
     public World getLevel() {
@@ -401,8 +384,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
     }
 
     public AdvCraftingCPU getRemainingCapacityCPU() {
-        if (this.remainingStorageCpu == null
-            || this.remainingStorageCpu.getAvailableStorage() != this.remainingStorage) {
+        if (this.remainingStorageCpu == null || this.remainingStorageCpu.getAvailableStorage() != this.remainingStorage) {
             this.remainingStorageCpu = new AdvCraftingCPU(this, this.remainingStorage);
         }
         return this.remainingStorageCpu;

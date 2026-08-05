@@ -4,6 +4,7 @@ import ae2.api.networking.IGrid;
 import ae2.api.networking.IGridNode;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
+
 import java.util.HashSet;
 import java.util.Set;
 

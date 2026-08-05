@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ReactionChamberRecipeWrapper implements IRecipeWrapper {
-    private static final ResourceLocation BOLT_TEXTURE =
-            new ResourceLocation(Reference.MOD_ID, "textures/guis/emi.png");
+    private static final ResourceLocation BOLT_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/guis/emi.png");
 
     private final ReactionChamberRecipe recipe;
     private final FluidStack inputFluid;

@@ -34,8 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class TileAssemblerMatrixBase extends AENetworkedTile
-    implements IAEMultiBlock<ClusterAssemblerMatrix>, IPowerChannelState, IConfigurableObject {
+public abstract class TileAssemblerMatrixBase extends AENetworkedTile implements IAEMultiBlock<ClusterAssemblerMatrix>, IPowerChannelState, IConfigurableObject {
 
     protected final CalculatorAssemblerMatrix calc = new CalculatorAssemblerMatrix(this);
     protected final ConfigManager manager;
@@ -47,10 +46,7 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile
     private boolean clientPowered;
 
     public TileAssemblerMatrixBase() {
-        this.getMainNode()
-            .setFlags(GridFlags.MULTIBLOCK, GridFlags.REQUIRE_CHANNEL)
-            .addService(IGridMultiblock.class, this::getMultiblockNodes)
-            .setIdlePowerUsage(0.5);
+        this.getMainNode().setFlags(GridFlags.MULTIBLOCK, GridFlags.REQUIRE_CHANNEL).addService(IGridMultiblock.class, this::getMultiblockNodes).setIdlePowerUsage(0.5);
         this.manager = new ConfigManager((configManager, setting) -> this.onConfigChanged(setting));
         this.manager.registerSetting(Settings.PATTERN_ACCESS_TERMINAL, YesNo.YES);
     }
@@ -188,8 +184,7 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && this.getPatternInv(facing) != null
-            || super.hasCapability(capability, facing);
+        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && this.getPatternInv(facing) != null || super.hasCapability(capability, facing);
     }
 
     @Override
@@ -221,9 +216,7 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile
         IBlockState current = this.world.getBlockState(this.pos);
 
         if (current.getBlock() instanceof BlockAssemblerMatrixBase) {
-            IBlockState newState = current
-                .withProperty(BlockAssemblerMatrixBase.POWERED, power)
-                .withProperty(BlockAssemblerMatrixBase.FORMED, formed);
+            IBlockState newState = current.withProperty(BlockAssemblerMatrixBase.POWERED, power).withProperty(BlockAssemblerMatrixBase.FORMED, formed);
             if (!current.equals(newState)) {
                 this.world.setBlockState(this.pos, newState, 3);
                 this.world.notifyBlockUpdate(this.pos, current, newState, 3);

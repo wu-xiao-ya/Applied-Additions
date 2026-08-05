@@ -18,8 +18,7 @@ public class ReactionChamberRecipe {
     private final ItemStack itemOutput;
     private final FluidStack fluidOutput;
 
-    public ReactionChamberRecipe(List<SizedIngredient> itemInputs, Fluid inputFluid, int inputFluidAmount,
-                                 int energy, ItemStack itemOutput, FluidStack fluidOutput) {
+    public ReactionChamberRecipe(List<SizedIngredient> itemInputs, Fluid inputFluid, int inputFluidAmount, int energy, ItemStack itemOutput, FluidStack fluidOutput) {
         this.itemInputs = itemInputs;
         this.inputFluid = inputFluid;
         this.inputFluidAmount = inputFluidAmount;
@@ -57,8 +56,7 @@ public class ReactionChamberRecipe {
             if (currentOutput.isEmpty()) {
                 return output.getCount() <= output.getMaxStackSize();
             }
-            if (!ItemStack.areItemsEqual(currentOutput, output)
-                    || !ItemStack.areItemStackTagsEqual(currentOutput, output)) {
+            if (!ItemStack.areItemsEqual(currentOutput, output) || !ItemStack.areItemStackTagsEqual(currentOutput, output)) {
                 return false;
             }
             return currentOutput.getCount() + output.getCount() <= currentOutput.getMaxStackSize();

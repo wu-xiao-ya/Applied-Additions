@@ -173,9 +173,7 @@ public final class RemoteBlockRenderer {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
         for (BakedQuad quad : quads) {
-            int color = quad.hasTintIndex()
-                    ? Minecraft.getMinecraft().getBlockColors().colorMultiplier(state, world, pos, quad.getTintIndex())
-                    : 0xFFFFFF;
+            int color = quad.hasTintIndex() ? Minecraft.getMinecraft().getBlockColors().colorMultiplier(state, world, pos, quad.getTintIndex()) : 0xFFFFFF;
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
             LightUtil.renderQuadColor(buffer, quad, 0xFF000000 | color);
             tessellator.draw();
@@ -201,10 +199,7 @@ public final class RemoteBlockRenderer {
         ScaledResolution scaled = new ScaledResolution(minecraft);
         int scale = scaled.getScaleFactor();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(x * scale,
-            minecraft.displayHeight - (y + height) * scale,
-            width * scale,
-            height * scale);
+        GL11.glScissor(x * scale, minecraft.displayHeight - (y + height) * scale, width * scale, height * scale);
     }
 
     private static void endScissor() {

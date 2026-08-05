@@ -20,27 +20,20 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ClusterAssemblerMatrix implements IAECluster {
     private final BlockPos boundsMin;
     private final BlockPos boundsMax;
-    private boolean isDestroyed;
-    private ITextComponent myName;
     private final List<TileAssemblerMatrixBase> tiles = new ArrayList<>();
-    private MachineSource machineSrc;
-    private IConfigManager manager = NullConfigManager.INSTANCE;
     private final List<TileAssemblerMatrixPattern> patterns = new ArrayList<>();
     private final Set<TileAssemblerMatrixCrafter> availableCrafters = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<TileAssemblerMatrixCrafter> busyCrafters = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<TileAssemblerMatrixCrafter, Integer> crafterStatusCache = new IdentityHashMap<>();
+    private boolean isDestroyed;
+    private ITextComponent myName;
+    private MachineSource machineSrc;
+    private IConfigManager manager = NullConfigManager.INSTANCE;
     private int speedCore;
 
     public ClusterAssemblerMatrix(BlockPos boundsMin, BlockPos boundsMax) {
@@ -266,10 +259,7 @@ public class ClusterAssemblerMatrix implements IAECluster {
         if (this.machineSrc == null) {
             return null;
         }
-        return this.machineSrc.machine()
-            .filter(TileAssemblerMatrixBase.class::isInstance)
-            .map(TileAssemblerMatrixBase.class::cast)
-            .orElse(null);
+        return this.machineSrc.machine().filter(TileAssemblerMatrixBase.class::isInstance).map(TileAssemblerMatrixBase.class::cast).orElse(null);
     }
 
     public IActionSource getSrc() {

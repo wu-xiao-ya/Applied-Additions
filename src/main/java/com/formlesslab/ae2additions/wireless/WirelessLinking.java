@@ -2,7 +2,7 @@ package com.formlesslab.ae2additions.wireless;
 
 import com.formlesslab.ae2additions.api.WirelessEndpoint;
 import com.formlesslab.ae2additions.api.WirelessFail;
-import com.formlesslab.ae2additions.init.ModConfig;
+import com.formlesslab.ae2additions.init.Configurations;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,8 +45,7 @@ public final class WirelessLinking {
         long frequency = current.getNewFrequency();
         setLocator(stack, frequency, world.provider.getDimension(), current.getEndpointPos());
         BlockPos pos = current.getEndpointPos();
-        player.sendStatusMessage(new TextComponentTranslation(
-            "chat.wireless_bind", pos.getX(), pos.getY(), pos.getZ()), true);
+        player.sendStatusMessage(new TextComponentTranslation("chat.wireless_bind", pos.getX(), pos.getY(), pos.getZ()), true);
         return EnumActionResult.SUCCESS;
     }
 
@@ -69,8 +68,7 @@ public final class WirelessLinking {
         return new BlockPos(locator.getInteger(X_TAG), locator.getInteger(Y_TAG), locator.getInteger(Z_TAG));
     }
 
-    private static EnumActionResult finishLink(EntityPlayer player, ItemStack stack, WirelessEndpoint current,
-                                               NBTTagCompound locator) {
+    private static EnumActionResult finishLink(EntityPlayer player, ItemStack stack, WirelessEndpoint current, NBTTagCompound locator) {
         World world = current.getEndpointWorld();
         BlockPos currentPos = current.getEndpointPos();
         int otherDim = locator.getInteger(DIM_TAG);
@@ -85,7 +83,7 @@ public final class WirelessLinking {
             player.sendStatusMessage(WirelessFail.SELF_REFERENCE.text(), true);
             return EnumActionResult.FAIL;
         }
-        if (Math.sqrt(otherPos.distanceSq(currentPos)) > ModConfig.wirelessConnectorMaxRange) {
+        if (Math.sqrt(otherPos.distanceSq(currentPos)) > Configurations.WIRELESS.maxRange) {
             player.sendStatusMessage(WirelessFail.OUT_OF_RANGE.text(), true);
             return EnumActionResult.FAIL;
         }
@@ -117,8 +115,7 @@ public final class WirelessLinking {
         other.setFrequency(frequency, otherPort);
         current.setFrequency(frequency, currentPort);
         clearLocator(stack);
-        player.sendStatusMessage(new TextComponentTranslation(
-            "chat.wireless_connect", currentPos.getX(), currentPos.getY(), currentPos.getZ()), true);
+        player.sendStatusMessage(new TextComponentTranslation("chat.wireless_connect", currentPos.getX(), currentPos.getY(), currentPos.getZ()), true);
         return EnumActionResult.SUCCESS;
     }
 

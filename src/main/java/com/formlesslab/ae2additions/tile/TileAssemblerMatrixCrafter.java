@@ -19,8 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 
-public class TileAssemblerMatrixCrafter extends TileAssemblerMatrixFunction
-    implements InternalInventoryHost, IGridTickable {
+public class TileAssemblerMatrixCrafter extends TileAssemblerMatrixFunction implements InternalInventoryHost, IGridTickable {
 
     public static final int MAX_THREAD = 8;
 

@@ -14,11 +14,7 @@ import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
 import net.minecraft.entity.player.InventoryPlayer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.WeakHashMap;
+import java.util.*;
 
 public class ContainerQuantumComputer extends ContainerCraftingCPU {
     private static final String ACTION_SELECT_CPU = "selectCpu";
@@ -26,25 +22,15 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
     private static final String ACTION_CANCEL_CRAFTING = "cancelCrafting";
 
     private static final QuantumComputerList EMPTY_CPU_LIST = new QuantumComputerList(Collections.emptyList());
-    private static final Comparator<QuantumComputerEntry> CPU_COMPARATOR = Comparator
-            .comparing((QuantumComputerEntry e) -> e.name() == null)
-            .thenComparing(e -> e.name() != null ? e.name().getFormattedText() : "")
-            .thenComparingInt(QuantumComputerEntry::clusterId)
-            .thenComparing(QuantumComputerEntry::isRemainingCapacity)
-            .thenComparingInt(QuantumComputerEntry::serial);
-
-    private WeakHashMap<ICraftingCPU, Integer> cpuSerialMap;
+    private static final Comparator<QuantumComputerEntry> CPU_COMPARATOR = Comparator.comparing((QuantumComputerEntry e) -> e.name() == null).thenComparing(e -> e.name() != null ? e.name().getFormattedText() : "").thenComparingInt(QuantumComputerEntry::clusterId).thenComparing(QuantumComputerEntry::isRemainingCapacity).thenComparingInt(QuantumComputerEntry::serial);
     private final QuantumComputerHost host;
-
     @GuiSync(8)
     public QuantumComputerList cpuList = EMPTY_CPU_LIST;
-
-    @GuiSync(9)
-    private int selectedCpuSerial = -1;
-
     @GuiSync(10)
     public CpuSelectionMode selectionMode = CpuSelectionMode.ANY;
-
+    private WeakHashMap<ICraftingCPU, Integer> cpuSerialMap;
+    @GuiSync(9)
+    private int selectedCpuSerial = -1;
     private int nextCpuSerial = 1;
     private List<? extends ICraftingCPU> lastCpuSet = Collections.emptyList();
     private int lastUpdate;
@@ -65,6 +51,10 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
                 this.setCPU(cpus.getFirst());
             }
         }
+    }
+
+    private static CpuSelectionMode rotateSelectionMode(CpuSelectionMode current, boolean backwards) {
+        return EnumCycler.rotateEnum(current, backwards, Settings.CPU_SELECTION_MODE.getValues());
     }
 
     @Override
@@ -147,17 +137,7 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
                     isRemainingCapacity = cluster.getRemainingCapacityCPU() == advCpu;
                 }
             }
-            entries.add(new QuantumComputerEntry(
-                    serial,
-                    cpu.getAvailableStorage(),
-                    cpu.getCoProcessors(),
-                    cpu.getName(),
-                    cpu.getSelectionMode(),
-                    status != null ? status.crafting() : null,
-                    progress,
-                    status != null ? status.elapsedTimeNanos() : 0L,
-                    quantumClusterId,
-                    isRemainingCapacity));
+            entries.add(new QuantumComputerEntry(serial, cpu.getAvailableStorage(), cpu.getCoProcessors(), cpu.getName(), cpu.getSelectionMode(), status != null ? status.crafting() : null, progress, status != null ? status.elapsedTimeNanos() : 0L, quantumClusterId, isRemainingCapacity));
         }
         entries.sort(CPU_COMPARATOR);
         return new QuantumComputerList(entries);
@@ -242,10 +222,6 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
 
     private void cycleSelectionMode(Integer delta) {
         cycleSelectionMode(delta != null && delta < 0);
-    }
-
-    private static CpuSelectionMode rotateSelectionMode(CpuSelectionMode current, boolean backwards) {
-        return EnumCycler.rotateEnum(current, backwards, Settings.CPU_SELECTION_MODE.getValues());
     }
 
     public int getSelectedCpuSerial() {

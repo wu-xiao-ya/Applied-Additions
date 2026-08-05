@@ -60,14 +60,10 @@ public final class AssemblerGlassConnect {
     private int getIndexX(EnumFacing face, int corner) {
         int x = face.getXOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1][1][1 + x], this.connects[1][2][1],
-                    this.connects[1][2][1 + x]);
-            case 1 -> getIndex(this.connects[1][1][1 - x], this.connects[1][2][1],
-                    this.connects[1][2][1 - x]);
-            case 2 -> getIndex(this.connects[1][1][1 + x], this.connects[1][0][1],
-                    this.connects[1][0][1 + x]);
-            case 4 -> getIndex(this.connects[1][1][1 - x], this.connects[1][0][1],
-                    this.connects[1][0][1 - x]);
+            case 0 -> getIndex(this.connects[1][1][1 + x], this.connects[1][2][1], this.connects[1][2][1 + x]);
+            case 1 -> getIndex(this.connects[1][1][1 - x], this.connects[1][2][1], this.connects[1][2][1 - x]);
+            case 2 -> getIndex(this.connects[1][1][1 + x], this.connects[1][0][1], this.connects[1][0][1 + x]);
+            case 4 -> getIndex(this.connects[1][1][1 - x], this.connects[1][0][1], this.connects[1][0][1 - x]);
             default -> -1;
         };
     }
@@ -75,14 +71,10 @@ public final class AssemblerGlassConnect {
     private int getIndexY(EnumFacing face, int corner) {
         int y = face.getYOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1][1][2], this.connects[1 - y][1][1],
-                    this.connects[1 - y][1][2]);
-            case 1 -> getIndex(this.connects[1][1][0], this.connects[1 - y][1][1],
-                    this.connects[1 - y][1][0]);
-            case 2 -> getIndex(this.connects[1][1][2], this.connects[1 + y][1][1],
-                    this.connects[1 + y][1][2]);
-            case 4 -> getIndex(this.connects[1][1][0], this.connects[1 + y][1][1],
-                    this.connects[1 + y][1][0]);
+            case 0 -> getIndex(this.connects[1][1][2], this.connects[1 - y][1][1], this.connects[1 - y][1][2]);
+            case 1 -> getIndex(this.connects[1][1][0], this.connects[1 - y][1][1], this.connects[1 - y][1][0]);
+            case 2 -> getIndex(this.connects[1][1][2], this.connects[1 + y][1][1], this.connects[1 + y][1][2]);
+            case 4 -> getIndex(this.connects[1][1][0], this.connects[1 + y][1][1], this.connects[1 + y][1][0]);
             default -> -1;
         };
     }
@@ -90,14 +82,10 @@ public final class AssemblerGlassConnect {
     private int getIndexZ(EnumFacing face, int corner) {
         int z = face.getZOffset();
         return switch (corner) {
-            case 0 -> getIndex(this.connects[1 - z][1][1], this.connects[1][2][1],
-                    this.connects[1 - z][2][1]);
-            case 1 -> getIndex(this.connects[1 + z][1][1], this.connects[1][2][1],
-                    this.connects[1 + z][2][1]);
-            case 2 -> getIndex(this.connects[1 - z][1][1], this.connects[1][0][1],
-                    this.connects[1 - z][0][1]);
-            case 4 -> getIndex(this.connects[1 + z][1][1], this.connects[1][0][1],
-                    this.connects[1 + z][0][1]);
+            case 0 -> getIndex(this.connects[1 - z][1][1], this.connects[1][2][1], this.connects[1 - z][2][1]);
+            case 1 -> getIndex(this.connects[1 + z][1][1], this.connects[1][2][1], this.connects[1 + z][2][1]);
+            case 2 -> getIndex(this.connects[1 - z][1][1], this.connects[1][0][1], this.connects[1 - z][0][1]);
+            case 4 -> getIndex(this.connects[1 + z][1][1], this.connects[1][0][1], this.connects[1 + z][0][1]);
             default -> -1;
         };
     }

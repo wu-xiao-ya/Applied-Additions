@@ -131,10 +131,6 @@ sourceSets {
             }
         }
     }
-    test {
-        compileClasspath += sourceSets.main.compileClasspath
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-    }
 }
 
 idea {

@@ -1,11 +1,7 @@
 package com.formlesslab.ae2additions.client.notification;
 
 import com.formlesslab.ae2additions.AppliedAdditions;
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
-import com.sun.jna.WString;
+import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.StdCallLibrary;
@@ -24,7 +20,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-/** Calls the Windows shell in-process through the JNA version bundled with Minecraft. */
+/**
+ * Calls the Windows shell in-process through the JNA version bundled with Minecraft.
+ */
 final class WindowsShellNotifier {
     private static final String APP_ID = "FormlessLab.AppliedAdditions.AE2CraftingNotifications";
     private static final String APP_NAME = "AE2 Supergiant";
@@ -61,10 +59,7 @@ final class WindowsShellNotifier {
     private WindowsShellNotifier() {
     }
 
-    static synchronized boolean show(BufferedImage applicationImage,
-                                     BufferedImage notificationImage,
-                                     String title,
-                                     String body) {
+    static synchronized boolean show(BufferedImage applicationImage, BufferedImage notificationImage, String title, String body) {
         try {
             if (!initialized && !initialize(applicationImage)) {
                 return false;
@@ -84,9 +79,7 @@ final class WindowsShellNotifier {
 
             if (Shell32.INSTANCE.Shell_NotifyIconW(NIM_MODIFY, data) == 0) {
                 User32.INSTANCE.DestroyIcon(notificationIcon);
-                AppliedAdditions.LOGGER.warn(
-                    "Shell_NotifyIconW failed with Windows error {}",
-                    Native.getLastError());
+                AppliedAdditions.LOGGER.warn("Shell_NotifyIconW failed with Windows error {}", Native.getLastError());
                 return false;
             }
 
@@ -112,9 +105,7 @@ final class WindowsShellNotifier {
         registerApplication(image);
         int appIdResult = Shell32.INSTANCE.SetCurrentProcessExplicitAppUserModelID(new WString(APP_ID));
         if (appIdResult != 0) {
-            AppliedAdditions.LOGGER.warn(
-                "Could not set Windows AppUserModelID; HRESULT=0x{}",
-                Integer.toHexString(appIdResult));
+            AppliedAdditions.LOGGER.warn("Could not set Windows AppUserModelID; HRESULT=0x{}", Integer.toHexString(appIdResult));
         }
 
         Pointer icon = createIcon(image);
@@ -127,9 +118,7 @@ final class WindowsShellNotifier {
         data.hIcon = icon;
         if (Shell32.INSTANCE.Shell_NotifyIconW(NIM_ADD, data) == 0) {
             User32.INSTANCE.DestroyIcon(icon);
-            AppliedAdditions.LOGGER.warn(
-                "Could not add Windows notification icon; error={}",
-                Native.getLastError());
+            AppliedAdditions.LOGGER.warn("Could not add Windows notification icon; error={}", Native.getLastError());
             return false;
         }
 
@@ -160,14 +149,7 @@ final class WindowsShellNotifier {
             byte[] png = output.toByteArray();
             Memory resource = new Memory(png.length);
             resource.write(0, png, 0, png.length);
-            return User32.INSTANCE.CreateIconFromResourceEx(
-                resource,
-                png.length,
-                1,
-                ICON_RESOURCE_VERSION,
-                image.getWidth(),
-                image.getHeight(),
-                LR_DEFAULTCOLOR);
+            return User32.INSTANCE.CreateIconFromResourceEx(resource, png.length, 1, ICON_RESOURCE_VERSION, image.getWidth(), image.getHeight(), LR_DEFAULTCOLOR);
         } catch (Exception e) {
             AppliedAdditions.LOGGER.warn("Could not create Windows icon for crafting notification", e);
             return null;
@@ -176,16 +158,7 @@ final class WindowsShellNotifier {
 
     private static void registerApplication(BufferedImage applicationImage) {
         PointerByReference keyReference = new PointerByReference();
-        int result = Advapi32.INSTANCE.RegCreateKeyExW(
-            HKEY_CURRENT_USER,
-            new WString(APP_ID_REGISTRY_PATH),
-            0,
-            null,
-            0,
-            KEY_SET_VALUE | KEY_CREATE_SUB_KEY,
-            null,
-            keyReference,
-            new IntByReference());
+        int result = Advapi32.INSTANCE.RegCreateKeyExW(HKEY_CURRENT_USER, new WString(APP_ID_REGISTRY_PATH), 0, null, 0, KEY_SET_VALUE | KEY_CREATE_SUB_KEY, null, keyReference, new IntByReference());
         if (result != 0) {
             AppliedAdditions.LOGGER.warn("Could not register Windows notification sender; error={}", result);
             return;
@@ -198,13 +171,7 @@ final class WindowsShellNotifier {
             if (iconPath != null) {
                 setRegistryString(key, "IconUri", iconPath, REG_EXPAND_SZ);
             }
-            Advapi32.INSTANCE.RegSetValueExW(
-                key,
-                new WString("ShowInSettings"),
-                0,
-                REG_DWORD,
-                new byte[]{1, 0, 0, 0},
-                4);
+            Advapi32.INSTANCE.RegSetValueExW(key, new WString("ShowInSettings"), 0, REG_DWORD, new byte[]{1, 0, 0, 0}, 4);
         } finally {
             Advapi32.INSTANCE.RegCloseKey(key);
         }
@@ -235,8 +202,7 @@ final class WindowsShellNotifier {
             icon.putInt(22);
             icon.put(png);
 
-            Path directory = Minecraft.getMinecraft().gameDir.toPath().toAbsolutePath().normalize()
-                .resolve("ae2additions");
+            Path directory = Minecraft.getMinecraft().gameDir.toPath().toAbsolutePath().normalize().resolve("ae2additions");
             Files.createDirectories(directory);
             Path iconFile = directory.resolve("windows-notification-icon.ico");
             Files.write(iconFile, icon.array());
@@ -263,9 +229,7 @@ final class WindowsShellNotifier {
             return;
         }
         shutdownHookInstalled = true;
-        Runtime.getRuntime().addShutdownHook(new Thread(
-            WindowsShellNotifier::shutdown,
-            "Applied Additions Windows notification cleanup"));
+        Runtime.getRuntime().addShutdownHook(new Thread(WindowsShellNotifier::shutdown, "Applied Additions Windows notification cleanup"));
     }
 
     private static synchronized void shutdown() {
@@ -283,6 +247,32 @@ final class WindowsShellNotifier {
             currentBalloonIcon = null;
         }
         windowHandle = null;
+    }
+
+    private interface Shell32 extends StdCallLibrary {
+        Shell32 INSTANCE = Native.loadLibrary("shell32", Shell32.class);
+
+        int Shell_NotifyIconW(int message, NotifyIconData data);
+
+        int SetCurrentProcessExplicitAppUserModelID(WString appId);
+    }
+
+    private interface User32 extends StdCallLibrary {
+        User32 INSTANCE = Native.loadLibrary("user32", User32.class);
+
+        Pointer CreateIconFromResourceEx(Pointer resourceBits, int resourceSize, int icon, int version, int desiredWidth, int desiredHeight, int flags);
+
+        int DestroyIcon(Pointer icon);
+    }
+
+    private interface Advapi32 extends StdCallLibrary {
+        Advapi32 INSTANCE = Native.loadLibrary("advapi32", Advapi32.class);
+
+        int RegCreateKeyExW(Pointer key, WString subKey, int reserved, WString keyClass, int options, int desiredAccess, Pointer securityAttributes, PointerByReference result, IntByReference disposition);
+
+        int RegSetValueExW(Pointer key, WString valueName, int reserved, int type, byte[] data, int dataSize);
+
+        int RegCloseKey(Pointer key);
     }
 
     public static final class NotifyIconData extends Structure {
@@ -304,55 +294,7 @@ final class WindowsShellNotifier {
 
         @Override
         protected List<String> getFieldOrder() {
-            return Arrays.asList(
-                "cbSize", "hWnd", "uID", "uFlags", "uCallbackMessage", "hIcon", "szTip",
-                "dwState", "dwStateMask", "szInfo", "uVersion", "szInfoTitle", "dwInfoFlags",
-                "guidItem", "hBalloonIcon");
+            return Arrays.asList("cbSize", "hWnd", "uID", "uFlags", "uCallbackMessage", "hIcon", "szTip", "dwState", "dwStateMask", "szInfo", "uVersion", "szInfoTitle", "dwInfoFlags", "guidItem", "hBalloonIcon");
         }
-    }
-
-    private interface Shell32 extends StdCallLibrary {
-        Shell32 INSTANCE = Native.loadLibrary("shell32", Shell32.class);
-
-        int Shell_NotifyIconW(int message, NotifyIconData data);
-
-        int SetCurrentProcessExplicitAppUserModelID(WString appId);
-    }
-
-    private interface User32 extends StdCallLibrary {
-        User32 INSTANCE = Native.loadLibrary("user32", User32.class);
-
-        Pointer CreateIconFromResourceEx(Pointer resourceBits,
-                                         int resourceSize,
-                                         int icon,
-                                         int version,
-                                         int desiredWidth,
-                                         int desiredHeight,
-                                         int flags);
-
-        int DestroyIcon(Pointer icon);
-    }
-
-    private interface Advapi32 extends StdCallLibrary {
-        Advapi32 INSTANCE = Native.loadLibrary("advapi32", Advapi32.class);
-
-        int RegCreateKeyExW(Pointer key,
-                            WString subKey,
-                            int reserved,
-                            WString keyClass,
-                            int options,
-                            int desiredAccess,
-                            Pointer securityAttributes,
-                            PointerByReference result,
-                            IntByReference disposition);
-
-        int RegSetValueExW(Pointer key,
-                           WString valueName,
-                           int reserved,
-                           int type,
-                           byte[] data,
-                           int dataSize);
-
-        int RegCloseKey(Pointer key);
     }
 }

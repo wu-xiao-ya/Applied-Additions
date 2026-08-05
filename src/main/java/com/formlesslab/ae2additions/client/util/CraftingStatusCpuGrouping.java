@@ -1,19 +1,12 @@
 package com.formlesslab.ae2additions.client.util;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class CraftingStatusCpuGrouping {
     private CraftingStatusCpuGrouping() {
     }
 
-    public static List<Integer> orderSerials(
-        List<Integer> serials,
-        Map<Integer, CraftingStatusCpuMetadata> metadataBySerial
-    ) {
+    public static List<Integer> orderSerials(List<Integer> serials, Map<Integer, CraftingStatusCpuMetadata> metadataBySerial) {
         List<Integer> ordered = new ArrayList<>(serials.size());
         Map<Integer, List<Integer>> pendingGroups = new LinkedHashMap<>();
 
@@ -31,9 +24,7 @@ public final class CraftingStatusCpuGrouping {
             }
         }
 
-        Comparator<Integer> groupMemberComparator = Comparator
-            .comparing((Integer serial) -> metadataBySerial.get(serial).remainingCapacity())
-            .thenComparingInt(Integer::intValue);
+        Comparator<Integer> groupMemberComparator = Comparator.comparing((Integer serial) -> metadataBySerial.get(serial).remainingCapacity()).thenComparingInt(Integer::intValue);
         for (Map.Entry<Integer, List<Integer>> entry : pendingGroups.entrySet()) {
             List<Integer> group = entry.getValue();
             Integer firstSeen = group.getFirst();

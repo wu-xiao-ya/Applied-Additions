@@ -29,14 +29,10 @@ public final class ModNetwork {
 
         // TODO quantum worker: register packet class for QUANTUM_TASK_CANCEL.
         // TODO quantum worker: register packet class for QUANTUM_CPU_SELECTION.
-        registerClientbound(ASSEMBLER_MATRIX_UPDATE,
-            SAssemblerMatrixUpdate.class);
-        registerServerbound(ASSEMBLER_MATRIX_CANCEL,
-            CAssemblerMatrixCancel.class);
-        registerServerbound(ASSEMBLER_MATRIX_PATTERN_MODE,
-            CAssemblerMatrixPatternMode.class);
-        registerServerbound(REACTION_CHAMBER_OUTPUT_SIDES,
-                CReactionChamberOutputSides.class);
+        registerClientbound(ASSEMBLER_MATRIX_UPDATE, SAssemblerMatrixUpdate.class);
+        registerServerbound(ASSEMBLER_MATRIX_CANCEL, CAssemblerMatrixCancel.class);
+        registerServerbound(ASSEMBLER_MATRIX_PATTERN_MODE, CAssemblerMatrixPatternMode.class);
+        registerServerbound(REACTION_CHAMBER_OUTPUT_SIDES, CReactionChamberOutputSides.class);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

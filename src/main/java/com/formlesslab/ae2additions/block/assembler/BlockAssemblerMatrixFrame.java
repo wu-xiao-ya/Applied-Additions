@@ -17,10 +17,11 @@ public class BlockAssemblerMatrixFrame extends BlockAssemblerMatrixBase<TileAsse
 
     public BlockAssemblerMatrixFrame() {
         super(TileAssemblerMatrixFrame.class);
-        this.setDefaultState(this.blockState.getBaseState()
-            .withProperty(FORMED, false)
-            .withProperty(POWERED, false)
-            .withProperty(SHAPE, Shape.BLOCK));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FORMED, false).withProperty(POWERED, false).withProperty(SHAPE, Shape.BLOCK));
+    }
+
+    private static boolean isFrame(IBlockAccess world, int x, int y, int z) {
+        return world.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof BlockAssemblerMatrixFrame;
     }
 
     @Override
@@ -29,9 +30,7 @@ public class BlockAssemblerMatrixFrame extends BlockAssemblerMatrixBase<TileAsse
     }
 
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-                                            float hitZ, int meta, EntityLivingBase placer,
-                                            EnumHand hand) {
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
         return getShapeType(super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand), world, pos);
     }
 
@@ -71,15 +70,8 @@ public class BlockAssemblerMatrixFrame extends BlockAssemblerMatrixBase<TileAsse
         return baseState.withProperty(SHAPE, type);
     }
 
-    private static boolean isFrame(IBlockAccess world, int x, int y, int z) {
-        return world.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof BlockAssemblerMatrixFrame;
-    }
-
     public enum Shape implements IStringSerializable {
-        BLOCK("block"),
-        COLUMN_X("column_x"),
-        COLUMN_Y("column_y"),
-        COLUMN_Z("column_z");
+        BLOCK("block"), COLUMN_X("column_x"), COLUMN_Y("column_y"), COLUMN_Z("column_z");
 
         private final String name;
 

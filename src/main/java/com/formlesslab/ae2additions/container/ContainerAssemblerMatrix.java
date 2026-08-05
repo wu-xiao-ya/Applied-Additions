@@ -9,14 +9,14 @@ import ae2.container.AEBaseContainer;
 import ae2.container.guisync.GuiSync;
 import ae2.helpers.InventoryAction;
 import com.formlesslab.ae2additions.api.AssemblerMatrixMenu;
-import com.formlesslab.ae2additions.me.cluster.ClusterAssemblerMatrix;
 import com.formlesslab.ae2additions.api.AssemblerMatrixServerActionHost;
-import com.formlesslab.ae2additions.network.SAssemblerMatrixUpdate;
+import com.formlesslab.ae2additions.me.cluster.ClusterAssemblerMatrix;
 import com.formlesslab.ae2additions.network.CAssemblerMatrixCancel;
 import com.formlesslab.ae2additions.network.CAssemblerMatrixPatternMode;
+import com.formlesslab.ae2additions.network.ModNetwork;
+import com.formlesslab.ae2additions.network.SAssemblerMatrixUpdate;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixPattern;
-import com.formlesslab.ae2additions.network.ModNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,8 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ContainerAssemblerMatrix extends AEBaseContainer
-    implements AssemblerMatrixMenu, AssemblerMatrixServerActionHost {
+public class ContainerAssemblerMatrix extends AEBaseContainer implements AssemblerMatrixMenu, AssemblerMatrixServerActionHost {
 
     private final TileAssemblerMatrixBase host;
     private final Map<Long, ItemStack[]> patternSnapshots = new LinkedHashMap<>();
@@ -48,13 +47,25 @@ public class ContainerAssemblerMatrix extends AEBaseContainer
         this.addPlayerInventorySlots(8, 116);
     }
 
+    private static ItemStack[] emptySnapshot(int size) {
+        ItemStack[] snapshot = new ItemStack[size];
+        Arrays.fill(snapshot, ItemStack.EMPTY);
+        return snapshot;
+    }
+
+    private static boolean isDifferent(ItemStack a, ItemStack b) {
+        if (a.isEmpty() && b.isEmpty()) {
+            return false;
+        }
+        return !ItemStack.areItemStacksEqual(a, b);
+    }
+
     @Override
     public void detectAndSendChanges() {
         if (this.isServerSide()) {
             ClusterAssemblerMatrix cluster = this.host.getCluster();
             this.runningThreads = cluster == null ? 0 : cluster.getBusyCrafterAmount();
-            this.hidePatternProviders =
-                this.host.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL) == YesNo.NO;
+            this.hidePatternProviders = this.host.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL) == YesNo.NO;
         }
         super.detectAndSendChanges();
         if (this.isServerSide()) {
@@ -319,18 +330,5 @@ public class ContainerAssemblerMatrix extends AEBaseContainer
             }
         }
         return null;
-    }
-
-    private static ItemStack[] emptySnapshot(int size) {
-        ItemStack[] snapshot = new ItemStack[size];
-        Arrays.fill(snapshot, ItemStack.EMPTY);
-        return snapshot;
-    }
-
-    private static boolean isDifferent(ItemStack a, ItemStack b) {
-        if (a.isEmpty() && b.isEmpty()) {
-            return false;
-        }
-        return !ItemStack.areItemStacksEqual(a, b);
     }
 }

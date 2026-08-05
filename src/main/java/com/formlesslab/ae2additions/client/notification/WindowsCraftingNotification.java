@@ -21,7 +21,9 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Sends a Windows notification when an AE2 crafting job finishes in the background. */
+/**
+ * Sends a Windows notification when an AE2 crafting job finishes in the background.
+ */
 public final class WindowsCraftingNotification {
     private static final int ICON_SIZE = 64;
     private static final ExecutorService NOTIFICATION_EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
@@ -45,10 +47,7 @@ public final class WindowsCraftingNotification {
             BufferedImage appIcon = getApplicationIcon(minecraft, icon);
             String formattedAmount = what.getType().formatAmount(amount, AmountFormat.SLOT);
             String title = I18n.format("notification.ae2additions.crafting_finished.title");
-            String body = I18n.format(
-                "notification.ae2additions.crafting_finished.body",
-                formattedAmount,
-                AEKeyRendering.getDisplayName(what).getUnformattedText());
+            String body = I18n.format("notification.ae2additions.crafting_finished.body", formattedAmount, AEKeyRendering.getDisplayName(what).getUnformattedText());
 
             NOTIFICATION_EXECUTOR.execute(() -> {
                 if (WindowsShellNotifier.show(appIcon, icon, title, body)) {

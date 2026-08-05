@@ -60,9 +60,7 @@ public abstract class BlockAAEAbstractCraftingUnit<T extends TileAdvCraftingBloc
         this.setHardness(2.2F);
         this.setResistance(11.0F);
         this.setTileEntity(tileEntityClass);
-        this.setDefaultState(this.blockState.getBaseState()
-            .withProperty(FORMED, Boolean.FALSE)
-            .withProperty(POWERED, Boolean.FALSE));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FORMED, Boolean.FALSE).withProperty(POWERED, Boolean.FALSE));
     }
 
     @Override
@@ -74,7 +72,7 @@ public abstract class BlockAAEAbstractCraftingUnit<T extends TileAdvCraftingBloc
     }
 
     protected IUnlistedProperty<?>[] getUnlistedProperties() {
-        return new IUnlistedProperty<?>[] {FORWARD, UP, STATE};
+        return new IUnlistedProperty<?>[]{FORWARD, UP, STATE};
     }
 
     @Override
@@ -88,8 +86,7 @@ public abstract class BlockAAEAbstractCraftingUnit<T extends TileAdvCraftingBloc
         }
 
         var renderState = tile.getRenderState();
-        return state.withProperty(FORMED, renderState.formed())
-            .withProperty(POWERED, renderState.powered());
+        return state.withProperty(FORMED, renderState.formed()).withProperty(POWERED, renderState.powered());
     }
 
     @Override
@@ -131,15 +128,12 @@ public abstract class BlockAAEAbstractCraftingUnit<T extends TileAdvCraftingBloc
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState()
-            .withProperty(POWERED, (meta & 1) == 1)
-            .withProperty(FORMED, (meta & 2) == 2);
+        return this.getDefaultState().withProperty(POWERED, (meta & 1) == 1).withProperty(FORMED, (meta & 2) == 2);
     }
 
     @Override
     protected IBlockState updateBlockStateFromTileEntity(IBlockState currentState, T tileEntity) {
-        return currentState.withProperty(POWERED, tileEntity.isPowered())
-            .withProperty(FORMED, tileEntity.isFormed());
+        return currentState.withProperty(POWERED, tileEntity.isPowered()).withProperty(FORMED, tileEntity.isFormed());
     }
 
     @Override

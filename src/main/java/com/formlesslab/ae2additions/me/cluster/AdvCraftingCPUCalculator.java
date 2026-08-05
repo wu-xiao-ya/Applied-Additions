@@ -5,7 +5,7 @@ import ae2.api.networking.IGridNode;
 import ae2.api.networking.events.GridCraftingCpuChange;
 import ae2.me.cluster.MBCalculator;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
-import com.formlesslab.ae2additions.init.QuantumConfig;
+import com.formlesslab.ae2additions.init.Configurations;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -16,12 +16,14 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
         super(tile);
     }
 
+    private static boolean isBoundary(BlockPos pos, BlockPos min, BlockPos max) {
+        return pos.getX() == min.getX() || pos.getY() == min.getY() || pos.getZ() == min.getZ() || pos.getX() == max.getX() || pos.getY() == max.getY() || pos.getZ() == max.getZ();
+    }
+
     @Override
     public boolean checkMultiblockScale(BlockPos min, BlockPos max) {
-        int maxDelta = QuantumConfig.getMaxSize() - 1;
-        return max.getX() - min.getX() <= maxDelta
-            && max.getY() - min.getY() <= maxDelta
-            && max.getZ() - min.getZ() <= maxDelta;
+        int maxDelta = Configurations.QUANTUM_COMPUTER.maxSize - 1;
+        return max.getX() - min.getX() <= maxDelta && max.getY() - min.getY() <= maxDelta && max.getZ() - min.getZ() <= maxDelta;
     }
 
     @Override
@@ -63,13 +65,13 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
                     }
                     break;
                 case DATA_ENTANGLER:
-                    if (boundary || entanglers >= QuantumConfig.getMaxDataEntanglers()) {
+                    if (boundary || entanglers >= Configurations.QUANTUM_COMPUTER.maxDataEntanglers) {
                         return false;
                     }
                     entanglers++;
                     break;
                 case QUANTUM_MULTI_THREADER:
-                    if (boundary || multiThreaders >= QuantumConfig.getMaxMultiThreaders()) {
+                    if (boundary || multiThreaders >= Configurations.QUANTUM_COMPUTER.maxMultiThreaders) {
                         return false;
                     }
                     multiThreaders++;
@@ -107,15 +109,6 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
     @Override
     public boolean isValidBlockEntity(TileEntity tile) {
         return tile instanceof TileAdvCraftingBlock;
-    }
-
-    private static boolean isBoundary(BlockPos pos, BlockPos min, BlockPos max) {
-        return pos.getX() == min.getX()
-            || pos.getY() == min.getY()
-            || pos.getZ() == min.getZ()
-            || pos.getX() == max.getX()
-            || pos.getY() == max.getY()
-            || pos.getZ() == max.getZ();
     }
 
     private static final class IteratorHelper {

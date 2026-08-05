@@ -24,7 +24,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntSupplier;
@@ -56,6 +56,22 @@ public class AdvCpuSelectionList implements ICompositeWidget {
         this.textColor = style.getColor(PaletteColor.DEFAULT_TEXT_COLOR);
         this.selectedColor = style.getColor(PaletteColor.SELECTION_COLOR).toARGB();
         this.scrollbar.setCaptureMouseWheel(false);
+    }
+
+    private static void drawScaledString(String text, int x, int y, int color) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0.0F);
+        GlStateManager.scale(0.666F, 0.666F, 1.0F);
+        Minecraft.getMinecraft().fontRenderer.drawString(text, 0, 0, color);
+        GlStateManager.popMatrix();
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private static ITextComponent gray(ITextComponent component) {
+        return component.setStyle(new Style().setColor(TextFormatting.GRAY));
     }
 
     @Override
@@ -119,13 +135,9 @@ public class AdvCpuSelectionList implements ICompositeWidget {
         GenericStack currentJob = cpu.currentJob();
         if (currentJob != null) {
             String amount = currentJob.what().formatAmount(currentJob.amount(), AmountFormat.FULL);
-            tooltipLines.add(gray(ButtonToolTips.CpuStatusCrafting.text(amount)
-                .appendText(" ")
-                .appendSibling(currentJob.what().getDisplayName())));
+            tooltipLines.add(gray(ButtonToolTips.CpuStatusCrafting.text(amount).appendText(" ").appendSibling(currentJob.what().getDisplayName())));
             var elapsedTimeTooltip = CraftingTimeDisplay.getElapsedTimeTooltip(cpu.progress(), cpu.elapsedTimeNanos());
-            tooltipLines.add(gray(new TextComponentTranslation(
-                elapsedTimeTooltip.translationKey(),
-                elapsedTimeTooltip.args())));
+            tooltipLines.add(gray(new TextComponentTranslation(elapsedTimeTooltip.translationKey(), elapsedTimeTooltip.args())));
         }
 
         return new Tooltip(tooltipLines);
@@ -165,17 +177,11 @@ public class AdvCpuSelectionList implements ICompositeWidget {
             GenericStack currentJob = cpu.currentJob();
             if (currentJob != null) {
                 infoBar.add(Icon.S_CRAFT, 1.0F, x + 2, y + 9);
-                infoBar.add(currentJob.what().formatAmount(currentJob.amount(), AmountFormat.SLOT),
-                    this.textColor.toARGB(), 0.666F, x + 14, y + 13);
+                infoBar.add(currentJob.what().formatAmount(currentJob.amount(), AmountFormat.SLOT), this.textColor.toARGB(), 0.666F, x + 14, y + 13);
                 infoBar.add(currentJob.what(), 0.666F, x + 55, y + 9);
 
                 int progress = (int) (cpu.progress() * (this.buttonBg.getSrcWidth() - 1));
-                Gui.drawRect(
-                    x,
-                    y + this.buttonBg.getSrcHeight() - 2,
-                    x + progress,
-                    y + this.buttonBg.getSrcHeight() - 1,
-                    this.menu.getSelectedCpuSerial() == cpu.serial() ? 0xFF7da9d2 : this.selectedColor);
+                Gui.drawRect(x, y + this.buttonBg.getSrcHeight() - 2, x + progress, y + this.buttonBg.getSrcHeight() - 1, this.menu.getSelectedCpuSerial() == cpu.serial() ? 0xFF7da9d2 : this.selectedColor);
             } else {
                 infoBar.add(Icon.S_STORAGE, 1.0F, x + 32, y + 9);
                 infoBar.add(formatStorage(cpu), this.textColor.toARGB(), 0.666F, x + 44, y + 13);
@@ -234,14 +240,8 @@ public class AdvCpuSelectionList implements ICompositeWidget {
             rowY += rowHeight;
         }
 
-        this.background.copy()
-            .src(0, this.background.getSrcHeight() - FOOTER_HEIGHT, SCROLLBAR_X, FOOTER_HEIGHT)
-            .dest(x, rowY)
-            .blit();
-        this.background.copy()
-            .src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT, 17, FOOTER_HEIGHT)
-            .dest(x + SCROLLBAR_X, rowY)
-            .blit();
+        this.background.copy().src(0, this.background.getSrcHeight() - FOOTER_HEIGHT, SCROLLBAR_X, FOOTER_HEIGHT).dest(x, rowY).blit();
+        this.background.copy().src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT, 17, FOOTER_HEIGHT).dest(x + SCROLLBAR_X, rowY).blit();
     }
 
     private void drawScrollbarBackground(int x, int y) {
@@ -249,24 +249,10 @@ public class AdvCpuSelectionList implements ICompositeWidget {
         int rowY = y + HEADER_HEIGHT;
         int rowHeight = getButtonRowHeight();
         for (int i = 0; i < getVisibleRows(); i++) {
-            this.background.copy()
-                .src(SCROLLBAR_X, HEADER_HEIGHT + rowHeight, 17, rowHeight)
-                .dest(x, rowY)
-                .blit();
+            this.background.copy().src(SCROLLBAR_X, HEADER_HEIGHT + rowHeight, 17, rowHeight).dest(x, rowY).blit();
             rowY += rowHeight;
         }
-        this.background.copy()
-            .src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT - 1, 17, 1)
-            .dest(x, rowY - 1)
-            .blit();
-    }
-
-    private static void drawScaledString(String text, int x, int y, int color) {
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, 0.0F);
-        GlStateManager.scale(0.666F, 0.666F, 1.0F);
-        Minecraft.getMinecraft().fontRenderer.drawString(text, 0, 0, color);
-        GlStateManager.popMatrix();
+        this.background.copy().src(SCROLLBAR_X, this.background.getSrcHeight() - FOOTER_HEIGHT - 1, 17, 1).dest(x, rowY - 1).blit();
     }
 
     private String formatStorage(QuantumComputerEntry cpu) {
@@ -287,14 +273,6 @@ public class AdvCpuSelectionList implements ICompositeWidget {
 
     private int getButtonRowHeight() {
         return this.buttonBg.getSrcHeight() + 1;
-    }
-
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    private static ITextComponent gray(ITextComponent component) {
-        return component.setStyle(new Style().setColor(TextFormatting.GRAY));
     }
 
 }

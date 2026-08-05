@@ -9,8 +9,6 @@ import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
 import com.formlesslab.ae2additions.me.service.QuantumCraftingServiceBridge;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import java.util.HashSet;
-import java.util.Set;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +17,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Mixin(value = CraftingService.class, remap = false)
 public abstract class MixinCraftingService {

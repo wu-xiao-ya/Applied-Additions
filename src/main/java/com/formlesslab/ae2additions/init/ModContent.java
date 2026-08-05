@@ -1,5 +1,6 @@
 package com.formlesslab.ae2additions.init;
 
+import ae2.api.upgrades.Upgrades;
 import ae2.core.definitions.AEItems;
 import ae2.recipes.AERecipeTypes;
 import ae2.recipes.handlers.InscriberProcessType;
@@ -8,6 +9,7 @@ import com.formlesslab.ae2additions.Reference;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
 import com.formlesslab.ae2additions.block.assembler.*;
 import com.formlesslab.ae2additions.block.material.*;
+import com.formlesslab.ae2additions.block.quantum.BlockAAECraftingUnit;
 import com.formlesslab.ae2additions.block.reaction.BlockReactionChamber;
 import com.formlesslab.ae2additions.block.wireless.BlockWirelessConnector;
 import com.formlesslab.ae2additions.block.wireless.BlockWirelessHub;
@@ -40,7 +42,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public final class ModContent {
@@ -75,7 +79,7 @@ public final class ModContent {
     private static final List<Item> ITEMS;
     private static final List<ModelEntry> MODELS;
     private static final List<TileEntityEntry> TILE_ENTITIES;
-
+    private static final Map<AAECraftingUnitType, BlockAAECraftingUnit> QUANTUM_BLOCKS = new EnumMap<>(AAECraftingUnitType.class);
 
     static {
         ModFluids.init();
@@ -139,7 +143,9 @@ public final class ModContent {
         registerBlock(WIRELESS_HUB, "wireless_hub");
 
         for (AAECraftingUnitType type : AAECraftingUnitType.values()) {
-            registerBlock(QuantumContent.getBlock(type), type.getRegistryName());
+            BlockAAECraftingUnit blockAAECraftingUnit = new BlockAAECraftingUnit(type);
+            QUANTUM_BLOCKS.put(type, blockAAECraftingUnit);
+            registerBlock(blockAAECraftingUnit, type.getRegistryName());
         }
 
         registerBlock(ASSEMBLER_MATRIX_FRAME, "assembler_matrix_frame");
@@ -161,7 +167,30 @@ public final class ModContent {
         registerTileEntity(TileAssemblerMatrixSpeed.class, "assembler_matrix_speed");
     }
 
-    private ModContent() {
+    public static void registerUpgrades() {
+        Upgrades.add(AEItems.ENERGY_CARD.item(), Item.getItemFromBlock(ModContent.WIRELESS_CONNECTOR), 4);
+        Upgrades.add(AEItems.ENERGY_CARD.item(), Item.getItemFromBlock(ModContent.WIRELESS_HUB), 4);
+        Upgrades.add(AEItems.SPEED_CARD.item(), Item.getItemFromBlock(ModContent.REACTION_CHAMBER), 4);
+        Upgrades.add(AEItems.PARALLEL_CARD.item(), Item.getItemFromBlock(ModContent.REACTION_CHAMBER), 3);
+    }
+
+    public static void registerOreDictionary() {
+        OreDictionary.registerOre("dustShatteredSingularity", QUANTUM_INFUSED_DUST);
+        OreDictionary.registerOre("ingotQuantumAlloy", QUANTUM_ALLOY);
+        OreDictionary.registerOre("plateQuantumAlloy", QUANTUM_ALLOY_PLATE);
+        OreDictionary.registerOre("blockQuantumAlloy", QUANTUM_ALLOY_BLOCK);
+    }
+
+    public static void registerMachineRecipes() {
+        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(Ingredient.fromStacks(new ItemStack(SHATTERED_SINGULARITY)), new ItemStack(QUANTUM_INFUSED_DUST), Ingredient.EMPTY, Ingredient.EMPTY, InscriberProcessType.PRESS));
+        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(Ingredient.fromStacks(new ItemStack(SHATTERED_SINGULARITY)), new ItemStack(QUANTUM_PROCESSOR_PRESS), Ingredient.fromStacks(AEItems.ENGINEERING_PROCESSOR_PRESS.stack()), Ingredient.fromStacks(AEItems.LOGIC_PROCESSOR_PRESS.stack()), InscriberProcessType.PRESS));
+        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(Ingredient.fromStacks(new ItemStack(Blocks.IRON_BLOCK)), new ItemStack(QUANTUM_PROCESSOR_PRESS), Ingredient.fromStacks(new ItemStack(QUANTUM_PROCESSOR_PRESS)), Ingredient.EMPTY, InscriberProcessType.INSCRIBE));
+        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(Ingredient.fromStacks(new ItemStack(QUANTUM_ALLOY)), new ItemStack(PRINTED_QUANTUM_PROCESSOR), Ingredient.fromStacks(new ItemStack(QUANTUM_PROCESSOR_PRESS)), Ingredient.EMPTY, InscriberProcessType.INSCRIBE));
+        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(Ingredient.fromStacks(new ItemStack(Items.REDSTONE)), new ItemStack(QUANTUM_PROCESSOR), Ingredient.fromStacks(new ItemStack(PRINTED_QUANTUM_PROCESSOR)), Ingredient.fromStacks(AEItems.SILICON_PRINT.stack()), InscriberProcessType.PRESS));
+    }
+
+    public static BlockAAECraftingUnit getQuantumBlock(AAECraftingUnitType type) {
+        return QUANTUM_BLOCKS.get(type);
     }
 
     public static void registerTileEntities() {
@@ -187,9 +216,14 @@ public final class ModContent {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent event) {
-        registerFluidModel(QUANTUM_INFUSION_BLOCK, "quantum_infusion_block");
+        ModelLoader.setCustomStateMapper(QUANTUM_INFUSION_BLOCK, new StateMapperBase() {
+            @Override
+            protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
+                return new ModelResourceLocation(id("quantum_infusion_block"), "normal");
+            }
+        });
         for (ModelEntry entry : MODELS) {
-            registerModel(entry.item, entry.name);
+            ModelLoader.setCustomModelResourceLocation(entry.item, 0, new ModelResourceLocation(id(entry.name), "inventory"));
         }
     }
 
@@ -228,11 +262,7 @@ public final class ModContent {
         block.setRegistryName(id(name));
         block.setTranslationKey(Reference.MOD_ID + "." + name);
         block.setCreativeTab(CREATIVE_TAB);
-        if (!(block instanceof BlockQuantumAlloyBlock)
-                && !(block instanceof BlockQuantumAlloyStairs)
-                && !(block instanceof BlockQuantumAlloyWall)
-                && !(block instanceof BlockQuantumAlloySlab)
-                && !(block instanceof BlockQuantumAlloyDoubleSlab)) {
+        if (!(block instanceof BlockQuantumAlloyBlock) && !(block instanceof BlockQuantumAlloyStairs) && !(block instanceof BlockQuantumAlloyWall) && !(block instanceof BlockQuantumAlloySlab) && !(block instanceof BlockQuantumAlloyDoubleSlab)) {
             block.setHardness(2.2F);
             block.setResistance(10.0F);
         }
@@ -256,63 +286,6 @@ public final class ModContent {
         item.setTranslationKey(Reference.MOD_ID + "." + name);
         item.setCreativeTab(CREATIVE_TAB);
         return item;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static void registerModel(Item item, String name) {
-        ModelLoader.setCustomModelResourceLocation(item, 0,
-                new ModelResourceLocation(id(name), "inventory"));
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static void registerFluidModel(Block block, String name) {
-        ModelResourceLocation location = new ModelResourceLocation(id(name), "normal");
-        ModelLoader.setCustomStateMapper(block, new StateMapperBase() {
-            @Override
-            protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
-                return location;
-            }
-        });
-    }
-
-    public static void registerOreDictionary() {
-        OreDictionary.registerOre("dustShatteredSingularity", QUANTUM_INFUSED_DUST);
-        OreDictionary.registerOre("ingotQuantumAlloy", QUANTUM_ALLOY);
-        OreDictionary.registerOre("plateQuantumAlloy", QUANTUM_ALLOY_PLATE);
-        OreDictionary.registerOre("blockQuantumAlloy", QUANTUM_ALLOY_BLOCK);
-    }
-
-    public static void registerMachineRecipes() {
-        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(
-                Ingredient.fromStacks(new ItemStack(SHATTERED_SINGULARITY)),
-                new ItemStack(QUANTUM_INFUSED_DUST),
-                Ingredient.EMPTY,
-                Ingredient.EMPTY,
-                InscriberProcessType.PRESS));
-        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(
-                Ingredient.fromStacks(new ItemStack(SHATTERED_SINGULARITY)),
-                new ItemStack(QUANTUM_PROCESSOR_PRESS),
-                Ingredient.fromStacks(AEItems.ENGINEERING_PROCESSOR_PRESS.stack()),
-                Ingredient.fromStacks(AEItems.LOGIC_PROCESSOR_PRESS.stack()),
-                InscriberProcessType.PRESS));
-        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(
-                Ingredient.fromStacks(new ItemStack(Blocks.IRON_BLOCK)),
-                new ItemStack(QUANTUM_PROCESSOR_PRESS),
-                Ingredient.fromStacks(new ItemStack(QUANTUM_PROCESSOR_PRESS)),
-                Ingredient.EMPTY,
-                InscriberProcessType.INSCRIBE));
-        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(
-                Ingredient.fromStacks(new ItemStack(QUANTUM_ALLOY)),
-                new ItemStack(PRINTED_QUANTUM_PROCESSOR),
-                Ingredient.fromStacks(new ItemStack(QUANTUM_PROCESSOR_PRESS)),
-                Ingredient.EMPTY,
-                InscriberProcessType.INSCRIBE));
-        AERecipeTypes.INSCRIBER.register(new InscriberRecipe(
-                Ingredient.fromStacks(new ItemStack(Items.REDSTONE)),
-                new ItemStack(QUANTUM_PROCESSOR),
-                Ingredient.fromStacks(new ItemStack(PRINTED_QUANTUM_PROCESSOR)),
-                Ingredient.fromStacks(AEItems.SILICON_PRINT.stack()),
-                InscriberProcessType.PRESS));
     }
 
     private record ModelEntry(Item item, String name) {

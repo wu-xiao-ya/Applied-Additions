@@ -16,13 +16,7 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class AssemblerGlassBakedModel implements IBakedModel {
@@ -49,13 +43,77 @@ public class AssemblerGlassBakedModel implements IBakedModel {
     public AssemblerGlassBakedModel(VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> getter) {
         this.format = format;
         this.glassSide = getter.apply(SIDE);
-        this.glassFaces = new TextureAtlasSprite[] {
-            getter.apply(FACE_A),
-            getter.apply(FACE_B),
-            getter.apply(FACE_C)
-        };
+        this.glassFaces = new TextureAtlasSprite[]{getter.apply(FACE_A), getter.apply(FACE_B), getter.apply(FACE_C)};
         this.fullGlass = getter.apply(FULL);
         this.itemQuads = createFullCube();
+    }
+
+    private static float interpolate(float start, float end, float value) {
+        return start + (end - start) * value;
+    }
+
+    private static float getU0(int index) {
+        return index == 1 || index == 3 ? 0.5F : 0.0F;
+    }
+
+    private static float getU1(int index) {
+        return index == 1 || index == 3 ? 1.0F : 0.5F;
+    }
+
+    private static float getV0(int index) {
+        return index == 2 || index == 3 ? 0.5F : 0.0F;
+    }
+
+    private static float getV1(int index) {
+        return index == 2 || index == 3 ? 1.0F : 0.5F;
+    }
+
+    private static EnumMap<EnumFacing, List<Vector3f>> createFaceMap() {
+        EnumMap<EnumFacing, List<Vector3f>> map = new EnumMap<>(EnumFacing.class);
+        map.put(EnumFacing.EAST, list(v(1, 1, 1), v(1, 0, 1), v(1, 0, 0), v(1, 1, 0)));
+        map.put(EnumFacing.WEST, list(v(0, 1, 0), v(0, 0, 0), v(0, 0, 1), v(0, 1, 1)));
+        map.put(EnumFacing.UP, list(v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), v(0, 1, 1)));
+        map.put(EnumFacing.DOWN, list(v(0, 0, 1), v(0, 0, 0), v(1, 0, 0), v(1, 0, 1)));
+        map.put(EnumFacing.SOUTH, list(v(0, 1, 1), v(0, 0, 1), v(1, 0, 1), v(1, 1, 1)));
+        map.put(EnumFacing.NORTH, list(v(1, 1, 0), v(1, 0, 0), v(0, 0, 0), v(0, 1, 0)));
+        return map;
+    }
+
+    private static Map<FaceCorner, List<Vector3f>> createVertexMap() {
+        Map<FaceCorner, List<Vector3f>> map = new HashMap<>();
+        map.put(new FaceCorner(EnumFacing.EAST, LU), list(v(1, 1, 1), v(1, 0.5F, 1), v(1, 0.5F, 0.5F), v(1, 1, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.EAST, RU), list(v(1, 1, 0.5F), v(1, 0.5F, 0.5F), v(1, 0.5F, 0), v(1, 1, 0)));
+        map.put(new FaceCorner(EnumFacing.EAST, LD), list(v(1, 0.5F, 1), v(1, 0, 1), v(1, 0, 0.5F), v(1, 0.5F, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.EAST, RD), list(v(1, 0.5F, 0.5F), v(1, 0, 0.5F), v(1, 0, 0), v(1, 0.5F, 0)));
+        map.put(new FaceCorner(EnumFacing.WEST, LU), list(v(0, 1, 0), v(0, 0.5F, 0), v(0, 0.5F, 0.5F), v(0, 1, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.WEST, RU), list(v(0, 1, 0.5F), v(0, 0.5F, 0.5F), v(0, 0.5F, 1), v(0, 1, 1)));
+        map.put(new FaceCorner(EnumFacing.WEST, LD), list(v(0, 0.5F, 0), v(0, 0, 0), v(0, 0, 0.5F), v(0, 0.5F, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.WEST, RD), list(v(0, 0.5F, 0.5F), v(0, 0, 0.5F), v(0, 0, 1), v(0, 0.5F, 1)));
+        map.put(new FaceCorner(EnumFacing.SOUTH, LU), list(v(0, 1, 1), v(0, 0.5F, 1), v(0.5F, 0.5F, 1), v(0.5F, 1, 1)));
+        map.put(new FaceCorner(EnumFacing.SOUTH, RU), list(v(0.5F, 1, 1), v(0.5F, 0.5F, 1), v(1, 0.5F, 1), v(1, 1, 1)));
+        map.put(new FaceCorner(EnumFacing.SOUTH, LD), list(v(0, 0.5F, 1), v(0, 0, 1), v(0.5F, 0, 1), v(0.5F, 0.5F, 1)));
+        map.put(new FaceCorner(EnumFacing.SOUTH, RD), list(v(0.5F, 0.5F, 1), v(0.5F, 0, 1), v(1, 0, 1), v(1, 0.5F, 1)));
+        map.put(new FaceCorner(EnumFacing.NORTH, LU), list(v(1, 1, 0), v(1, 0.5F, 0), v(0.5F, 0.5F, 0), v(0.5F, 1, 0)));
+        map.put(new FaceCorner(EnumFacing.NORTH, RU), list(v(0.5F, 1, 0), v(0.5F, 0.5F, 0), v(0, 0.5F, 0), v(0, 1, 0)));
+        map.put(new FaceCorner(EnumFacing.NORTH, LD), list(v(1, 0.5F, 0), v(1, 0, 0), v(0.5F, 0, 0), v(0.5F, 0.5F, 0)));
+        map.put(new FaceCorner(EnumFacing.NORTH, RD), list(v(0.5F, 0.5F, 0), v(0.5F, 0, 0), v(0, 0, 0), v(0, 0.5F, 0)));
+        map.put(new FaceCorner(EnumFacing.UP, LU), list(v(0, 1, 1), v(0.5F, 1, 1), v(0.5F, 1, 0.5F), v(0, 1, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.UP, RU), list(v(0, 1, 0.5F), v(0.5F, 1, 0.5F), v(0.5F, 1, 0), v(0, 1, 0)));
+        map.put(new FaceCorner(EnumFacing.UP, LD), list(v(0.5F, 1, 1), v(1, 1, 1), v(1, 1, 0.5F), v(0.5F, 1, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.UP, RD), list(v(0.5F, 1, 0.5F), v(1, 1, 0.5F), v(1, 1, 0), v(0.5F, 1, 0)));
+        map.put(new FaceCorner(EnumFacing.DOWN, LU), list(v(1, 0, 1), v(0.5F, 0, 1), v(0.5F, 0, 0.5F), v(1, 0, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.DOWN, RU), list(v(1, 0, 0.5F), v(0.5F, 0, 0.5F), v(0.5F, 0, 0), v(1, 0, 0)));
+        map.put(new FaceCorner(EnumFacing.DOWN, LD), list(v(0.5F, 0, 1), v(0, 0, 1), v(0, 0, 0.5F), v(0.5F, 0, 0.5F)));
+        map.put(new FaceCorner(EnumFacing.DOWN, RD), list(v(0.5F, 0, 0.5F), v(0, 0, 0.5F), v(0, 0, 0), v(0.5F, 0, 0)));
+        return map;
+    }
+
+    private static List<Vector3f> list(Vector3f... vectors) {
+        return Arrays.asList(vectors);
+    }
+
+    private static Vector3f v(float x, float y, float z) {
+        return new Vector3f(x, y, z);
     }
 
     @Override
@@ -161,8 +219,7 @@ public class AssemblerGlassBakedModel implements IBakedModel {
         }
     }
 
-    private void addQuad(List<BakedQuad> quads, EnumFacing side, TextureAtlasSprite sprite,
-                         List<Vector3f> vertices, float u0, float v0, float u1, float v1) {
+    private void addQuad(List<BakedQuad> quads, EnumFacing side, TextureAtlasSprite sprite, List<Vector3f> vertices, float u0, float v0, float u1, float v1) {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(this.format);
         builder.setTexture(sprite);
         builder.setQuadOrientation(side);
@@ -175,8 +232,7 @@ public class AssemblerGlassBakedModel implements IBakedModel {
         quads.add(builder.build());
     }
 
-    private void putVertex(UnpackedBakedQuad.Builder builder, TextureAtlasSprite sprite, Vec3i normal,
-                           Vector3f pos, float u, float v) {
+    private void putVertex(UnpackedBakedQuad.Builder builder, TextureAtlasSprite sprite, Vec3i normal, Vector3f pos, float u, float v) {
         for (int elementIndex = 0; elementIndex < this.format.getElementCount(); elementIndex++) {
             VertexFormatElement element = this.format.getElement(elementIndex);
             switch (element.getUsage()) {
@@ -188,8 +244,7 @@ public class AssemblerGlassBakedModel implements IBakedModel {
                     break;
                 case UV:
                     if (element.getIndex() == 0) {
-                        builder.put(elementIndex, interpolate(sprite.getMinU(), sprite.getMaxU(), u),
-                            interpolate(sprite.getMinV(), sprite.getMaxV(), v), 0.0F, 1.0F);
+                        builder.put(elementIndex, interpolate(sprite.getMinU(), sprite.getMaxU(), u), interpolate(sprite.getMinV(), sprite.getMaxV(), v), 0.0F, 1.0F);
                     } else {
                         builder.put(elementIndex, 0.0F, 0.0F, 0.0F, 1.0F);
                     }
@@ -204,86 +259,18 @@ public class AssemblerGlassBakedModel implements IBakedModel {
         }
     }
 
-    private static float interpolate(float start, float end, float value) {
-        return start + (end - start) * value;
-    }
-
-    private static float getU0(int index) {
-        return index == 1 || index == 3 ? 0.5F : 0.0F;
-    }
-
-    private static float getU1(int index) {
-        return index == 1 || index == 3 ? 1.0F : 0.5F;
-    }
-
-    private static float getV0(int index) {
-        return index == 2 || index == 3 ? 0.5F : 0.0F;
-    }
-
-    private static float getV1(int index) {
-        return index == 2 || index == 3 ? 1.0F : 0.5F;
-    }
-
-    private static EnumMap<EnumFacing, List<Vector3f>> createFaceMap() {
-        EnumMap<EnumFacing, List<Vector3f>> map = new EnumMap<>(EnumFacing.class);
-        map.put(EnumFacing.EAST, list(v(1, 1, 1), v(1, 0, 1), v(1, 0, 0), v(1, 1, 0)));
-        map.put(EnumFacing.WEST, list(v(0, 1, 0), v(0, 0, 0), v(0, 0, 1), v(0, 1, 1)));
-        map.put(EnumFacing.UP, list(v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), v(0, 1, 1)));
-        map.put(EnumFacing.DOWN, list(v(0, 0, 1), v(0, 0, 0), v(1, 0, 0), v(1, 0, 1)));
-        map.put(EnumFacing.SOUTH, list(v(0, 1, 1), v(0, 0, 1), v(1, 0, 1), v(1, 1, 1)));
-        map.put(EnumFacing.NORTH, list(v(1, 1, 0), v(1, 0, 0), v(0, 0, 0), v(0, 1, 0)));
-        return map;
-    }
-
-    private static Map<FaceCorner, List<Vector3f>> createVertexMap() {
-        Map<FaceCorner, List<Vector3f>> map = new HashMap<>();
-        map.put(new FaceCorner(EnumFacing.EAST, LU), list(v(1, 1, 1), v(1, 0.5F, 1), v(1, 0.5F, 0.5F), v(1, 1, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.EAST, RU), list(v(1, 1, 0.5F), v(1, 0.5F, 0.5F), v(1, 0.5F, 0), v(1, 1, 0)));
-        map.put(new FaceCorner(EnumFacing.EAST, LD), list(v(1, 0.5F, 1), v(1, 0, 1), v(1, 0, 0.5F), v(1, 0.5F, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.EAST, RD), list(v(1, 0.5F, 0.5F), v(1, 0, 0.5F), v(1, 0, 0), v(1, 0.5F, 0)));
-        map.put(new FaceCorner(EnumFacing.WEST, LU), list(v(0, 1, 0), v(0, 0.5F, 0), v(0, 0.5F, 0.5F), v(0, 1, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.WEST, RU), list(v(0, 1, 0.5F), v(0, 0.5F, 0.5F), v(0, 0.5F, 1), v(0, 1, 1)));
-        map.put(new FaceCorner(EnumFacing.WEST, LD), list(v(0, 0.5F, 0), v(0, 0, 0), v(0, 0, 0.5F), v(0, 0.5F, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.WEST, RD), list(v(0, 0.5F, 0.5F), v(0, 0, 0.5F), v(0, 0, 1), v(0, 0.5F, 1)));
-        map.put(new FaceCorner(EnumFacing.SOUTH, LU), list(v(0, 1, 1), v(0, 0.5F, 1), v(0.5F, 0.5F, 1), v(0.5F, 1, 1)));
-        map.put(new FaceCorner(EnumFacing.SOUTH, RU), list(v(0.5F, 1, 1), v(0.5F, 0.5F, 1), v(1, 0.5F, 1), v(1, 1, 1)));
-        map.put(new FaceCorner(EnumFacing.SOUTH, LD), list(v(0, 0.5F, 1), v(0, 0, 1), v(0.5F, 0, 1), v(0.5F, 0.5F, 1)));
-        map.put(new FaceCorner(EnumFacing.SOUTH, RD), list(v(0.5F, 0.5F, 1), v(0.5F, 0, 1), v(1, 0, 1), v(1, 0.5F, 1)));
-        map.put(new FaceCorner(EnumFacing.NORTH, LU), list(v(1, 1, 0), v(1, 0.5F, 0), v(0.5F, 0.5F, 0), v(0.5F, 1, 0)));
-        map.put(new FaceCorner(EnumFacing.NORTH, RU), list(v(0.5F, 1, 0), v(0.5F, 0.5F, 0), v(0, 0.5F, 0), v(0, 1, 0)));
-        map.put(new FaceCorner(EnumFacing.NORTH, LD), list(v(1, 0.5F, 0), v(1, 0, 0), v(0.5F, 0, 0), v(0.5F, 0.5F, 0)));
-        map.put(new FaceCorner(EnumFacing.NORTH, RD), list(v(0.5F, 0.5F, 0), v(0.5F, 0, 0), v(0, 0, 0), v(0, 0.5F, 0)));
-        map.put(new FaceCorner(EnumFacing.UP, LU), list(v(0, 1, 1), v(0.5F, 1, 1), v(0.5F, 1, 0.5F), v(0, 1, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.UP, RU), list(v(0, 1, 0.5F), v(0.5F, 1, 0.5F), v(0.5F, 1, 0), v(0, 1, 0)));
-        map.put(new FaceCorner(EnumFacing.UP, LD), list(v(0.5F, 1, 1), v(1, 1, 1), v(1, 1, 0.5F), v(0.5F, 1, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.UP, RD), list(v(0.5F, 1, 0.5F), v(1, 1, 0.5F), v(1, 1, 0), v(0.5F, 1, 0)));
-        map.put(new FaceCorner(EnumFacing.DOWN, LU), list(v(1, 0, 1), v(0.5F, 0, 1), v(0.5F, 0, 0.5F), v(1, 0, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.DOWN, RU), list(v(1, 0, 0.5F), v(0.5F, 0, 0.5F), v(0.5F, 0, 0), v(1, 0, 0)));
-        map.put(new FaceCorner(EnumFacing.DOWN, LD), list(v(0.5F, 0, 1), v(0, 0, 1), v(0, 0, 0.5F), v(0.5F, 0, 0.5F)));
-        map.put(new FaceCorner(EnumFacing.DOWN, RD), list(v(0.5F, 0, 0.5F), v(0, 0, 0.5F), v(0, 0, 0), v(0.5F, 0, 0)));
-        return map;
-    }
-
-    private static List<Vector3f> list(Vector3f... vectors) {
-        return Arrays.asList(vectors);
-    }
-
-    private static Vector3f v(float x, float y, float z) {
-        return new Vector3f(x, y, z);
-    }
-
     private record FaceCorner(EnumFacing face, int corner) {
 
         @Override
-            public boolean equals(Object obj) {
-                if (this == obj) {
-                    return true;
-                }
-                if (!(obj instanceof FaceCorner(EnumFacing face1, int corner1))) {
-                    return false;
-                }
-                return this.face == face1 && this.corner == corner1;
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
             }
+            if (!(obj instanceof FaceCorner(EnumFacing face1, int corner1))) {
+                return false;
+            }
+            return this.face == face1 && this.corner == corner1;
+        }
 
     }
 }

@@ -4,20 +4,13 @@ import ae2.api.crafting.cpu.CraftingUnitVisualDefinition;
 import ae2.api.crafting.cpu.CraftingUnitVisualKind;
 import ae2.block.crafting.ICraftingUnitType;
 import com.formlesslab.ae2additions.Reference;
-import com.formlesslab.ae2additions.init.QuantumConfig;
-import com.formlesslab.ae2additions.init.QuantumContent;
+import com.formlesslab.ae2additions.init.Configurations;
+import com.formlesslab.ae2additions.init.ModContent;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
 public enum AAECraftingUnitType implements ICraftingUnitType {
-    QUANTUM_UNIT("quantum_unit", 0),
-    QUANTUM_CORE("quantum_core", 256),
-    QUANTUM_STORAGE_128("quantum_storage_128", 128),
-    QUANTUM_STORAGE_256("quantum_storage_256", 256),
-    DATA_ENTANGLER("data_entangler", 0),
-    QUANTUM_ACCELERATOR("quantum_accelerator", 0),
-    QUANTUM_MULTI_THREADER("quantum_multi_threader", 0),
-    QUANTUM_STRUCTURE("quantum_structure", 0);
+    QUANTUM_UNIT("quantum_unit", 0), QUANTUM_CORE("quantum_core", 256), QUANTUM_STORAGE_128("quantum_storage_128", 128), QUANTUM_STORAGE_256("quantum_storage_256", 256), DATA_ENTANGLER("data_entangler", 0), QUANTUM_ACCELERATOR("quantum_accelerator", 0), QUANTUM_MULTI_THREADER("quantum_multi_threader", 0), QUANTUM_STRUCTURE("quantum_structure", 0);
 
     private static final ResourceLocation FAMILY_ID = quantumComputerId();
     public static final ResourceLocation MODEL_PROVIDER_ID = FAMILY_ID;
@@ -31,16 +24,7 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
         this.registryName = registryName;
         this.storageMb = storageMb;
         this.id = new ResourceLocation(Reference.MOD_ID, registryName);
-        this.visualDefinition = CraftingUnitVisualDefinition.builder(
-            CraftingUnitVisualKind.CUSTOM,
-            new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName),
-            new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName + "_formed"))
-            .ringTextures(
-                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_face"),
-                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides"),
-                new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides"))
-            .formedModelProviderId(quantumComputerId())
-            .build();
+        this.visualDefinition = CraftingUnitVisualDefinition.builder(CraftingUnitVisualKind.CUSTOM, new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName), new ResourceLocation(Reference.MOD_ID, "quantum_crafting/" + registryName + "_formed")).ringTextures(new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_face"), new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides"), new ResourceLocation(Reference.MOD_ID, "block/quantum_crafting/quantum_structure_formed_sides")).formedModelProviderId(quantumComputerId()).build();
     }
 
     private static ResourceLocation quantumComputerId() {
@@ -57,16 +41,16 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
     }
 
     public int getStorageMultiplier() {
-        return this == DATA_ENTANGLER ? QuantumConfig.getDataEntanglerMultiplier() : 0;
+        return this == DATA_ENTANGLER ? Configurations.QUANTUM_COMPUTER.dataEntanglerMultiplier : 0;
     }
 
     @Override
     public int getAcceleratorThreads() {
-        return this == QUANTUM_ACCELERATOR || this == QUANTUM_CORE ? QuantumConfig.getAcceleratorThreads() : 0;
+        return this == QUANTUM_ACCELERATOR || this == QUANTUM_CORE ? Configurations.QUANTUM_COMPUTER.acceleratorThreads : 0;
     }
 
     public int getAccelerationMultiplier() {
-        return this == QUANTUM_MULTI_THREADER ? QuantumConfig.getMultiThreaderMultiplier() : 0;
+        return this == QUANTUM_MULTI_THREADER ? Configurations.QUANTUM_COMPUTER.multiThreaderMultiplier : 0;
     }
 
     public boolean isBoundaryOnly() {
@@ -94,6 +78,6 @@ public enum AAECraftingUnitType implements ICraftingUnitType {
 
     @Override
     public Item getItemFromType() {
-        return Item.getItemFromBlock(QuantumContent.getBlock(this));
+        return Item.getItemFromBlock(ModContent.getQuantumBlock(this));
     }
 }
