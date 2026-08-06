@@ -1,5 +1,6 @@
 package com.formlesslab.ae2additions.recipe;
 
+import com.formlesslab.ae2additions.init.ModRecipes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -84,7 +85,7 @@ public class ReactionChamberRecipeFactory implements IRecipeFactory {
 
     @Override
     public IRecipe parse(JsonContext context, JsonObject json) {
-        ReactionChamberRecipes.REACTION_CHAMBER_RECIPES.add(ReactionChamberRecipeFactory.fromJson(json, context));
+        ModRecipes.REACTION_CHAMBER_RECIPES.add(ReactionChamberRecipeFactory.fromJson(json, context));
         return new NonCraftingRecipe();
     }
 

@@ -1,8 +1,9 @@
-package com.formlesslab.ae2additions.me.cluster;
+package com.formlesslab.ae2additions.me.calculator;
 
 import ae2.me.cluster.IAEMultiBlock;
 import ae2.me.cluster.MBCalculator;
 import com.formlesslab.ae2additions.init.Configurations;
+import com.formlesslab.ae2additions.me.cluster.ClusterAssemblerMatrix;
 import com.formlesslab.ae2additions.tile.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

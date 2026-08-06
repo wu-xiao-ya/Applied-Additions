@@ -10,10 +10,10 @@ import ae2.container.guisync.GuiSync;
 import ae2.helpers.InventoryAction;
 import com.formlesslab.ae2additions.api.AssemblerMatrixMenu;
 import com.formlesslab.ae2additions.api.AssemblerMatrixServerActionHost;
+import com.formlesslab.ae2additions.init.ModNetworks;
 import com.formlesslab.ae2additions.me.cluster.ClusterAssemblerMatrix;
 import com.formlesslab.ae2additions.network.CAssemblerMatrixCancel;
 import com.formlesslab.ae2additions.network.CAssemblerMatrixPatternMode;
-import com.formlesslab.ae2additions.network.ModNetwork;
 import com.formlesslab.ae2additions.network.SAssemblerMatrixUpdate;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixPattern;
@@ -106,7 +106,7 @@ public class ContainerAssemblerMatrix extends AEBaseContainer implements Assembl
     @Override
     public void requestCancel() {
         if (this.isClientSide()) {
-            ModNetwork.sendToServer(new CAssemblerMatrixCancel());
+            ModNetworks.sendToServer(new CAssemblerMatrixCancel());
         } else {
             this.cancelAssemblerMatrixJobs();
         }
@@ -115,7 +115,7 @@ public class ContainerAssemblerMatrix extends AEBaseContainer implements Assembl
     @Override
     public void requestPatternMode(boolean hide) {
         if (this.isClientSide()) {
-            ModNetwork.sendToServer(new CAssemblerMatrixPatternMode(hide));
+            ModNetworks.sendToServer(new CAssemblerMatrixPatternMode(hide));
         } else {
             this.setAssemblerMatrixPatternMode(hide);
         }
@@ -281,7 +281,7 @@ public class ContainerAssemblerMatrix extends AEBaseContainer implements Assembl
         while (knownIds.hasNext()) {
             long knownId = knownIds.next();
             if (this.findPattern(knownId) == null) {
-                ModNetwork.sendToClient(player, new SAssemblerMatrixUpdate(knownId, new Int2ObjectOpenHashMap<>()));
+                ModNetworks.sendToClient(player, new SAssemblerMatrixUpdate(knownId, new Int2ObjectOpenHashMap<>()));
                 knownIds.remove();
             }
         }
@@ -289,7 +289,7 @@ public class ContainerAssemblerMatrix extends AEBaseContainer implements Assembl
 
     private void sendRemovedPatternUpdates(EntityPlayerMP player) {
         for (Long patternId : this.patternSnapshots.keySet()) {
-            ModNetwork.sendToClient(player, new SAssemblerMatrixUpdate(patternId, new Int2ObjectOpenHashMap<>()));
+            ModNetworks.sendToClient(player, new SAssemblerMatrixUpdate(patternId, new Int2ObjectOpenHashMap<>()));
         }
         this.patternSnapshots.clear();
     }
@@ -315,7 +315,7 @@ public class ContainerAssemblerMatrix extends AEBaseContainer implements Assembl
         }
 
         if (!changed.isEmpty()) {
-            ModNetwork.sendToClient(player, new SAssemblerMatrixUpdate(patternId, changed));
+            ModNetworks.sendToClient(player, new SAssemblerMatrixUpdate(patternId, changed));
         }
     }
 

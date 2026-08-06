@@ -2,7 +2,7 @@ package com.formlesslab.ae2additions.block.reaction;
 
 import ae2.block.AEBaseTileBlock;
 import com.formlesslab.ae2additions.AppliedAdditions;
-import com.formlesslab.ae2additions.ModGuiHandler;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
 import com.formlesslab.ae2additions.tile.TileReactionChamber;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

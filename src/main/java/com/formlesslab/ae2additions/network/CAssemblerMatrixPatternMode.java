@@ -1,6 +1,7 @@
 package com.formlesslab.ae2additions.network;
 
 import com.formlesslab.ae2additions.api.AssemblerMatrixServerActionHost;
+import com.formlesslab.ae2additions.network.base.ModServerboundPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 

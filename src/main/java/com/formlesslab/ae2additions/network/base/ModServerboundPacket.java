@@ -1,4 +1,4 @@
-package com.formlesslab.ae2additions.network;
+package com.formlesslab.ae2additions.network.base;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;

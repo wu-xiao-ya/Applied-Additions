@@ -103,7 +103,14 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction impl
     }
 
     public void drainPatternsTo(List<ItemStack> drops) {
-        PatternInventoryDrops.drain(this.patternInventory, drops);
+        InternalInventory inventory = this.patternInventory;
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack pattern = inventory.getStackInSlot(slot);
+            if (!pattern.isEmpty()) {
+                drops.add(pattern.copy());
+                inventory.setItemDirect(slot, ItemStack.EMPTY);
+            }
+        }
     }
 
     @Override

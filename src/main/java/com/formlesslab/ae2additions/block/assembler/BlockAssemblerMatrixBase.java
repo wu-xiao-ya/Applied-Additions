@@ -3,7 +3,7 @@ package com.formlesslab.ae2additions.block.assembler;
 import ae2.block.AEBaseTileBlock;
 import ae2.util.Platform;
 import com.formlesslab.ae2additions.AppliedAdditions;
-import com.formlesslab.ae2additions.ModGuiHandler;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
 import com.formlesslab.ae2additions.tile.TileAssemblerMatrixBase;
 import com.formlesslab.ae2additions.util.TooltipHelper;
 import net.minecraft.block.Block;

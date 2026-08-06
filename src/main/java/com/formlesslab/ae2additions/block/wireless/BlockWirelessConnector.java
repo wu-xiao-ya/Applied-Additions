@@ -1,6 +1,6 @@
 package com.formlesslab.ae2additions.block.wireless;
 
-import com.formlesslab.ae2additions.ModGuiHandler;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
 import com.formlesslab.ae2additions.tile.TileWirelessConnector;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

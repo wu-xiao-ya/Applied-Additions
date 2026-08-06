@@ -6,7 +6,7 @@ import ae2.crafting.CraftingLink;
 import ae2.me.cluster.implementations.CraftingCPUCluster;
 import ae2.me.service.CraftingService;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
-import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
+import com.formlesslab.ae2additions.me.cluster.ClusterAdvCraftingCPU;
 import com.formlesslab.ae2additions.me.service.QuantumCraftingServiceBridge;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,7 +24,7 @@ import java.util.Set;
 @Mixin(value = CraftingService.class, remap = false)
 public abstract class MixinCraftingService {
     @Unique
-    private final Set<AdvCraftingCPUCluster> ae2additions$quantumCpuClusters = new HashSet<>();
+    private final Set<ClusterAdvCraftingCPU> ae2additions$quantumCpuClusters = new HashSet<>();
 
     @Final
     @Shadow
@@ -59,7 +59,7 @@ public abstract class MixinCraftingService {
         this.ae2additions$quantumCpuClusters.clear();
         this.ae2additions$quantumCpuClusters.addAll(QuantumCraftingServiceBridge.collectClusters(this.grid));
 
-        for (AdvCraftingCPUCluster cluster : this.ae2additions$quantumCpuClusters) {
+        for (ClusterAdvCraftingCPU cluster : this.ae2additions$quantumCpuClusters) {
             for (AdvCraftingCPU cpu : cluster.getActiveCPUs()) {
                 this.craftingCPUClusters.add(cpu);
                 if (cpu.craftingLogic.getLastLink() instanceof CraftingLink link) {
@@ -72,7 +72,7 @@ public abstract class MixinCraftingService {
 
     @Inject(method = "onServerEndTick", at = @At("HEAD"))
     private void ae2additions$removeFinishedQuantumCpus(CallbackInfo ci) {
-        for (AdvCraftingCPUCluster cluster : this.ae2additions$quantumCpuClusters) {
+        for (ClusterAdvCraftingCPU cluster : this.ae2additions$quantumCpuClusters) {
             cluster.getActiveCPUs();
         }
     }

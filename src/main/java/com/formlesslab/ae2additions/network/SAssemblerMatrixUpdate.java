@@ -1,6 +1,7 @@
 package com.formlesslab.ae2additions.network;
 
 import com.formlesslab.ae2additions.client.gui.GuiAssemblerMatrix;
+import com.formlesslab.ae2additions.network.base.ModClientboundPacket;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
