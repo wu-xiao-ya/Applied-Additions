@@ -12,6 +12,8 @@ import java.util.Map;
 @IFMLLoadingPlugin.Name("AppliedAdditionsCore")
 @IFMLLoadingPlugin.MCVersion("1.12.2")
 public class AppliedAdditionsCore implements IFMLLoadingPlugin, IEarlyMixinLoader {
+    private static final String MIXIN_CONFIG = "mixins/ae2additions.mixins.json";
+
     @Nullable
     @Override
     public String[] getASMTransformerClass() {
@@ -42,6 +44,6 @@ public class AppliedAdditionsCore implements IFMLLoadingPlugin, IEarlyMixinLoade
 
     @Override
     public List<String> getMixinConfigs() {
-        return Collections.singletonList("ae2additions.mixins.json");
+        return Collections.singletonList(MIXIN_CONFIG);
     }
 }
