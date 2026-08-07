@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -197,8 +198,16 @@ public class TileAssemblerMatrixPattern extends TileAssemblerMatrixFunction impl
             iconStack = new ItemStack(Items.PAPER);
         }
         AEItemKey icon = AEItemKey.of(iconStack);
-        ITextComponent name = this.hasCustomName() ? new TextComponentString(this.getCustomName()) : icon.getDisplayName();
-        return new PatternContainerGroup(icon, name, List.of(new TextComponentTranslation("gui.ae2additions.assembler_matrix.pattern")));
+        ITextComponent name = this.hasCustomName() ? new TextComponentString(this.getCustomName()) : null;
+        if (name == null && icon != null) {
+            name = icon.getDisplayName();
+        }
+        if (name == null) {
+            name = new TextComponentTranslation("tile.ae2additions.assembler_matrix_pattern.name");
+        }
+
+        ITextComponent tooltip = new TextComponentTranslation("gui.ae2additions.assembler_matrix.pattern");
+        return new PatternContainerGroup(icon, name, Collections.singletonList(tooltip));
     }
 
     private record BlockPosBits(int x, int y, int z) {
