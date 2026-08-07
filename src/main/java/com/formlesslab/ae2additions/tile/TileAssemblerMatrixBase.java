@@ -225,7 +225,9 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile implements
 
         if (updateFormed) {
             try {
-                onGridConnectableSidesChanged();
+                if (this.getMainNode().getNode() != null) {
+                    onGridConnectableSidesChanged();
+                }
             } catch (IllegalStateException ignored) {
                 // AE2S can reject exposed-side updates while a grid node is being torn down during chunk unload.
                 // The next normal matrix recalculation will apply the sides again after the node is ready.
