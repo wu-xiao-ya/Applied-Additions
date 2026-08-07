@@ -12,6 +12,7 @@ import ae2.api.networking.storage.IStorageService;
 import ae2.api.networking.ticking.TickRateModulation;
 import ae2.api.stacks.AEItemKey;
 import ae2.api.stacks.KeyCounter;
+import ae2.api.storage.MEStorage;
 import ae2.tile.grid.AENetworkedTile;
 import ae2.util.inv.AppEngInternalInventory;
 import ae2.util.inv.FilteredInternalInventory;
@@ -26,11 +27,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 public class CraftingMatrixThread {
     private static final int COOL_TIME = 5 * 20;
     private static final int MAX_CRAFT_PROGRESS = 100;
+    private static final Method STORAGE_GET_INVENTORY_METHOD = findStorageGetInventoryMethod();
     private static final Container NULL_CONTAINER = new Container() {
         @Override
         public boolean canInteractWith(EntityPlayer playerIn) {
@@ -304,7 +308,12 @@ public class CraftingMatrixThread {
         }
 
         IStorageService storage = grid.getStorageService();
-        long inserted = storage.getInventory().insert(AEItemKey.of(stack), stack.getCount(), Actionable.MODULATE, this.sourceGetter.get());
+        MEStorage inventory = getStorageInventory(storage);
+        if (inventory == null) {
+            return stack;
+        }
+
+        long inserted = inventory.insert(AEItemKey.of(stack), stack.getCount(), Actionable.MODULATE, this.sourceGetter.get());
         if (inserted <= 0) {
             return stack;
         }
@@ -316,6 +325,34 @@ public class CraftingMatrixThread {
             return remaining;
         }
         return ItemStack.EMPTY;
+    }
+
+    @Nullable
+    private static Method findStorageGetInventoryMethod() {
+        try {
+            return IStorageService.class.getMethod("getInventory");
+        } catch (NoSuchMethodException e) {
+            AppliedAdditions.LOGGER.warn("Unable to find AE2 storage service inventory accessor", e);
+            return null;
+        }
+    }
+
+    @Nullable
+    private static MEStorage getStorageInventory(IStorageService storage) {
+        if (STORAGE_GET_INVENTORY_METHOD == null) {
+            return null;
+        }
+
+        try {
+            Object inventory = STORAGE_GET_INVENTORY_METHOD.invoke(storage);
+            if (inventory instanceof MEStorage) {
+                return (MEStorage) inventory;
+            }
+            AppliedAdditions.LOGGER.warn("AE2 storage service returned incompatible inventory: {}", inventory);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            AppliedAdditions.LOGGER.warn("Unable to access AE2 storage service inventory", e);
+        }
+        return null;
     }
 
     private void fillGrid(KeyCounter[] table, IAssemblerPattern adapter) {

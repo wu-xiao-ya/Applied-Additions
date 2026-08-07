@@ -35,7 +35,9 @@ import java.util.List;
 public class TileWirelessHub extends AENetworkedTile implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessEndpoint {
 
     public static final int MAX_PORTS = 8;
+    private static final int RECONNECT_INTERVAL_TICKS = 20;
     private final boolean[] updateStatus = new boolean[MAX_PORTS];
+    private final int[] reconnectTicks = new int[MAX_PORTS];
     private final long[] frequencies = new long[MAX_PORTS];
     private final WirelessConnection[] connections = new WirelessConnection[MAX_PORTS];
     private double powerUse = 1.0;
@@ -68,8 +70,10 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
     public void serverTick() {
         boolean changed = false;
         for (int i = 0; i < MAX_PORTS; i++) {
-            if (this.updateStatus[i]) {
+            boolean retryReconnect = this.shouldRetryReconnect(i);
+            if (this.updateStatus[i] || retryReconnect) {
                 this.updateStatus[i] = false;
+                this.reconnectTicks[i] = 0;
                 this.connections[i].updateStatus();
                 this.reactive(i);
                 changed = true;
@@ -126,6 +130,7 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
         }
         this.getMainNode().setGridColor(this.color);
         Arrays.fill(this.updateStatus, true);
+        Arrays.fill(this.reconnectTicks, 0);
     }
 
     @Override
@@ -204,6 +209,7 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
         }
         this.frequencies[port] = frequency;
         this.updateStatus[port] = true;
+        this.reconnectTicks[port] = 0;
         this.saveChanges();
     }
 
@@ -220,6 +226,7 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
         this.connections[port].destroy();
         this.connections[port] = new WirelessConnection(new PortNode(this, port));
         this.updateStatus[port] = true;
+        this.reconnectTicks[port] = 0;
         this.updatePowerUsage();
         this.saveChanges();
         this.markForUpdate();
@@ -227,7 +234,7 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
 
     public void reactive(int port) {
         if (isValidPort(port)) {
-            this.connections[port].active();
+            this.connections[port].active(new PortNode(this, port));
         }
     }
 
@@ -335,6 +342,17 @@ public class TileWirelessHub extends AENetworkedTile implements ServerTickingTil
             this.powerUse = Configurations.WIRELESS.powerMultiplier;
         }
         this.getMainNode().setIdlePowerUsage(this.powerUse);
+    }
+
+    private boolean shouldRetryReconnect(int port) {
+        World world = this.getWorld();
+        if (!isValidPort(port) || world == null || world.isRemote || this.updateStatus[port] || this.frequencies[port] == 0 || !this.connections[port].needsReconnect()) {
+            if (isValidPort(port)) {
+                this.reconnectTicks[port] = 0;
+            }
+            return false;
+        }
+        return ++this.reconnectTicks[port] >= RECONNECT_INTERVAL_TICKS;
     }
 
     private void onUpgradesChanged() {

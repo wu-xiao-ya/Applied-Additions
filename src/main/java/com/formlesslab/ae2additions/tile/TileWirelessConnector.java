@@ -33,8 +33,10 @@ import java.util.List;
 
 public class TileWirelessConnector extends AENetworkedTile implements ServerTickingTile, IUpgradeableObject, IColorableBlockEntity, WirelessNode, WirelessEndpoint {
 
+    private static final int RECONNECT_INTERVAL_TICKS = 20;
     private final WirelessConnection connection = new WirelessConnection(this);
     private boolean updateStatus = true;
+    private int reconnectTicks;
     private long frequency;
     private double powerUse = 1.0;
     private AEColor color = AEColor.TRANSPARENT;
@@ -61,8 +63,10 @@ public class TileWirelessConnector extends AENetworkedTile implements ServerTick
 
     @Override
     public void serverTick() {
-        if (this.updateStatus) {
+        boolean retryReconnect = this.shouldRetryReconnect();
+        if (this.updateStatus || retryReconnect) {
             this.updateStatus = false;
+            this.reconnectTicks = 0;
             this.connection.updateStatus();
             this.updatePowerUsage();
             this.markForUpdate();
@@ -182,8 +186,9 @@ public class TileWirelessConnector extends AENetworkedTile implements ServerTick
     public void clearFrequency() {
         this.frequency = 0;
         this.disconnect();
-        this.connection.active();
+        this.connection.active(this);
         this.updateStatus = true;
+        this.reconnectTicks = 0;
         this.updatePowerUsage();
         this.saveChanges();
         this.markForUpdate();
@@ -195,7 +200,7 @@ public class TileWirelessConnector extends AENetworkedTile implements ServerTick
     }
 
     public void reactive() {
-        this.connection.active();
+        this.connection.active(this);
     }
 
     public void disconnect() {
@@ -300,6 +305,15 @@ public class TileWirelessConnector extends AENetworkedTile implements ServerTick
             this.powerUse = Configurations.WIRELESS.powerMultiplier;
         }
         this.getMainNode().setIdlePowerUsage(this.powerUse);
+    }
+
+    private boolean shouldRetryReconnect() {
+        World world = this.getWorld();
+        if (world == null || world.isRemote || this.updateStatus || this.frequency == 0 || !this.connection.needsReconnect()) {
+            this.reconnectTicks = 0;
+            return false;
+        }
+        return ++this.reconnectTicks >= RECONNECT_INTERVAL_TICKS;
     }
 
     private void onUpgradesChanged() {

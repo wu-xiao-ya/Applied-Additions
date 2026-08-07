@@ -50,6 +50,13 @@ public class WirelessConnection implements IActionHost {
         this.destroyed = false;
     }
 
+    public void active(WirelessNode host) {
+        if (this.host == null) {
+            this.host = host;
+        }
+        this.active();
+    }
+
     public void updateStatus() {
         if (this.host == null || this.host.getWirelessWorld() == null || this.host.getWirelessWorld().isRemote) {
             return;
@@ -81,8 +88,7 @@ public class WirelessConnection implements IActionHost {
         if (remote != null && remote.host != null) {
             this.distance = Math.sqrt(this.host.getWirelessPos().distanceSq(remote.host.getWirelessPos()));
             if (this.isActive() && remote.isActive() && this.host.getWirelessWorld() == remote.host.getWirelessWorld() && this.distance <= Configurations.WIRELESS.maxRange) {
-                this.shutdown = false;
-                ensureConnection(remote);
+                ensureConnection(remote, this.distance);
             }
         }
 
@@ -97,6 +103,10 @@ public class WirelessConnection implements IActionHost {
 
     public double getDistance() {
         return this.distance;
+    }
+
+    public boolean needsReconnect() {
+        return this.host != null && this.host.getFrequency() != 0 && !this.isConnected();
     }
 
     @Nullable
@@ -125,7 +135,7 @@ public class WirelessConnection implements IActionHost {
         this.host = null;
     }
 
-    private void ensureConnection(WirelessConnection remote) {
+    private void ensureConnection(WirelessConnection remote, double distance) {
         IGridNode localNode = this.host.getWirelessGridNode();
         IGridNode remoteNode = remote.host.getWirelessGridNode();
         if (localNode == null || remoteNode == null) {
@@ -133,13 +143,16 @@ public class WirelessConnection implements IActionHost {
             return;
         }
 
-        if (this.connection != null && this.connection.a() != null) {
-            IGridNode a = this.connection.a();
-            IGridNode b = this.connection.b();
-            if ((a == localNode || b == localNode) && (a == remoteNode || b == remoteNode)) {
-                remote.connection = this.connection;
-                return;
-            }
+        if (isSameConnection(this.connection, localNode, remoteNode)) {
+            remote.connection = this.connection;
+            markConnected(remote, distance);
+            return;
+        }
+
+        if (isSameConnection(remote.connection, localNode, remoteNode)) {
+            this.connection = remote.connection;
+            markConnected(remote, distance);
+            return;
         }
 
         destroyConnection();
@@ -148,9 +161,32 @@ public class WirelessConnection implements IActionHost {
             IGridConnection newConnection = GridHelper.createConnection(localNode, remoteNode);
             this.connection = newConnection;
             remote.connection = newConnection;
+            markConnected(remote, distance);
         } catch (IllegalStateException e) {
+            this.shutdown = true;
+            remote.shutdown = true;
             AppliedAdditions.LOGGER.debug(e.getMessage());
         }
+    }
+
+    private boolean isSameConnection(@Nullable IGridConnection connection, IGridNode localNode, IGridNode remoteNode) {
+        if (connection == null) {
+            return false;
+        }
+        try {
+            IGridNode a = connection.a();
+            IGridNode b = connection.b();
+            return a != null && b != null && (a == localNode || b == localNode) && (a == remoteNode || b == remoteNode);
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+    }
+
+    private void markConnected(WirelessConnection remote, double distance) {
+        this.shutdown = false;
+        remote.shutdown = false;
+        this.distance = distance;
+        remote.distance = distance;
     }
 
     private boolean canUseNode(long key) {
