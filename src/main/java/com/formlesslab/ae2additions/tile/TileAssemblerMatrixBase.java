@@ -223,7 +223,7 @@ public abstract class TileAssemblerMatrixBase extends AENetworkedTile implements
             }
         }
 
-        if (updateFormed) {
+        if (updateFormed && getMainNode().getNode() != null) {
             onGridConnectableSidesChanged();
         }
         this.markForUpdate();
