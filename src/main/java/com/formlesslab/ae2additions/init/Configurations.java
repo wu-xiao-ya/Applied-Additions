@@ -100,7 +100,7 @@ public final class Configurations {
         @Config.LangKey("config.ae2additions.assembler_matrix.max_size")
         @Config.Comment("Maximum outer dimensions of the Assembler Matrix multiblock")
         @Config.RangeInt(min = 3, max = 16)
-        public int maxSize = 7;
+        public int maxSize = 8;
     }
 
     public static final class Client {
