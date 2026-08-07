@@ -57,7 +57,7 @@ public final class Configurations {
         @Config.LangKey("config.ae2additions.quantum_computer.max_size")
         @Config.Comment("Maximum outer dimensions of the Quantum Computer multiblock")
         @Config.RangeInt(min = 5, max = 16)
-        public int maxSize = 7;
+        public int maxSize = 8;
 
         @Config.Name("acceleratorThreads")
         @Config.LangKey("config.ae2additions.quantum_computer.accelerator_threads")
