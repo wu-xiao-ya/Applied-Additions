@@ -66,7 +66,7 @@ dependencies {
     //     transitive = false
     // }
 
-    modImplementation files("lib/AppliedEnergistics2-Supergiant-1.0.10+be5f5ace2.jar")
+    compileOnly files("lib/AppliedEnergistics2-Supergiant-1.0.10+be5f5ace2.jar")
     modImplementation "curse.maven:had-enough-items-557549:7938914"
     modCompileOnly 'curse.maven:mouse-tweaks-unofficial-461660:5876158'
     //modImplementation 'software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31'
