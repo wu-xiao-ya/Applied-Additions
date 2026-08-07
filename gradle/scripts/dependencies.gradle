@@ -66,7 +66,9 @@ dependencies {
     //     transitive = false
     // }
 
-    modCompileOnly files("lib/AppliedEnergistics2-Supergiant-1.0.10+be5f5ace2.jar")
+    modImplementation "com.github.FormlessDragon:Applied-Energistics-2-Supergiant:v1.0.10"
+    // Override only the storage-service ABI used by the current server AE2S build.
+    compileOnly files("lib/ae2s-storage-api-monitor.jar")
     modImplementation "curse.maven:had-enough-items-557549:7938914"
     modCompileOnly 'curse.maven:mouse-tweaks-unofficial-461660:5876158'
     //modImplementation 'software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31'
