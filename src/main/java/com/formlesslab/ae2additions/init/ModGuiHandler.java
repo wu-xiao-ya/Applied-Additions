@@ -1,4 +1,4 @@
-package com.formlesslab.ae2additions;
+package com.formlesslab.ae2additions.init;
 
 import ae2.client.gui.style.GuiStyleManager;
 import ae2.core.gui.locator.GuiHostLocators;

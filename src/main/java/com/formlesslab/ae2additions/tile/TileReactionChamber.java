@@ -28,11 +28,11 @@ import ae2.util.inv.CombinedInternalInventory;
 import ae2.util.inv.FilteredInternalInventory;
 import ae2.util.inv.filter.IAEItemFilter;
 import com.formlesslab.ae2additions.AppliedAdditions;
-import com.formlesslab.ae2additions.ModGuiHandler;
 import com.formlesslab.ae2additions.block.reaction.BlockReactionChamber;
 import com.formlesslab.ae2additions.init.ModContent;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
+import com.formlesslab.ae2additions.init.ModRecipes;
 import com.formlesslab.ae2additions.recipe.ReactionChamberRecipe;
-import com.formlesslab.ae2additions.recipe.ReactionChamberRecipes;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -329,7 +329,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile implements IGrid
     @Nullable
     public ReactionChamberRecipe getTask() {
         if (this.cachedTask == null) {
-            this.cachedTask = ReactionChamberRecipes.findRecipe(this.input, this.inputTank, this.output.getStackInSlot(0), this.outputTank, TANK_CAPACITY);
+            this.cachedTask = ModRecipes.findRecipe(this.input, this.inputTank, this.output.getStackInSlot(0), this.outputTank, TANK_CAPACITY);
         }
         return this.cachedTask;
     }
@@ -630,7 +630,7 @@ public class TileReactionChamber extends AENetworkedPoweredTile implements IGrid
     private final class InputFilter implements IAEItemFilter {
         @Override
         public boolean allowInsert(InternalInventory inv, int slot, ItemStack stack) {
-            return ReactionChamberRecipes.isValidIngredient(stack);
+            return ModRecipes.isValidIngredient(stack);
         }
     }
 }

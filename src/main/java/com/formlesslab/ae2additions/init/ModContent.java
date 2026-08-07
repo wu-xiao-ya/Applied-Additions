@@ -13,7 +13,7 @@ import com.formlesslab.ae2additions.block.quantum.BlockAAECraftingUnit;
 import com.formlesslab.ae2additions.block.reaction.BlockReactionChamber;
 import com.formlesslab.ae2additions.block.wireless.BlockWirelessConnector;
 import com.formlesslab.ae2additions.block.wireless.BlockWirelessHub;
-import com.formlesslab.ae2additions.fluid.ModFluids;
+import com.formlesslab.ae2additions.fluid.QuantumInfusionFluid;
 import com.formlesslab.ae2additions.item.ItemWirelessConnectorUpgrade;
 import com.formlesslab.ae2additions.item.ItemWirelessTool;
 import com.formlesslab.ae2additions.tile.*;
@@ -62,7 +62,7 @@ public final class ModContent {
     public static final Item QUANTUM_PROCESSOR;
     public static final Item QUANTUM_STORAGE_COMPONENT;
     public static final BlockReactionChamber REACTION_CHAMBER;
-    public static final ModFluids.QuantumInfusionBlock QUANTUM_INFUSION_BLOCK;
+    public static final QuantumInfusionFluid.QuantumInfusionBlock QUANTUM_INFUSION_BLOCK;
     public static final BlockQuantumAlloyBlock QUANTUM_ALLOY_BLOCK;
     public static final BlockQuantumAlloyWall QUANTUM_ALLOY_WALL;
     public static final BlockQuantumAlloySlab QUANTUM_ALLOY_SLAB;
@@ -82,7 +82,7 @@ public final class ModContent {
     private static final Map<AAECraftingUnitType, BlockAAECraftingUnit> QUANTUM_BLOCKS = new EnumMap<>(AAECraftingUnitType.class);
 
     static {
-        ModFluids.init();
+        QuantumInfusionFluid.init();
         QUANTUM_INFUSED_DUST = new Item();
         CREATIVE_TAB = new CreativeTabs("ae2additions") {
             public ItemStack createIcon() {
@@ -101,7 +101,7 @@ public final class ModContent {
         QUANTUM_PROCESSOR = new Item();
         QUANTUM_STORAGE_COMPONENT = new Item();
         REACTION_CHAMBER = new BlockReactionChamber();
-        QUANTUM_INFUSION_BLOCK = new ModFluids.QuantumInfusionBlock();
+        QUANTUM_INFUSION_BLOCK = new QuantumInfusionFluid.QuantumInfusionBlock();
         QUANTUM_ALLOY_BLOCK = new BlockQuantumAlloyBlock();
         QUANTUM_ALLOY_WALL = new BlockQuantumAlloyWall(QUANTUM_ALLOY_BLOCK);
         QUANTUM_ALLOY_SLAB = new BlockQuantumAlloySlab();

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class AdvCraftingCPUCluster implements IAECluster {
+public class ClusterAdvCraftingCPU implements IAECluster {
     private static final String TAG_CPUS = "cpus";
     private static final String TAG_CPU_LIST_COMPAT = "cpuList";
     private static final String TAG_KEY = "key";
@@ -59,7 +59,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
     private UUID lastSelectedCpuId;
     private boolean lastSelectedRemainingCapacity;
 
-    public AdvCraftingCPUCluster(BlockPos boundsMin, BlockPos boundsMax) {
+    public ClusterAdvCraftingCPU(BlockPos boundsMin, BlockPos boundsMax) {
         this.boundsMin = boundsMin.toImmutable();
         this.boundsMax = boundsMax.toImmutable();
         this.guiClusterId = nextGuiClusterId++;
@@ -465,7 +465,7 @@ public class AdvCraftingCPUCluster implements IAECluster {
         }
     }
 
-    private void updateGridForChangedCpu(AdvCraftingCPUCluster cluster) {
+    private void updateGridForChangedCpu(ClusterAdvCraftingCPU cluster) {
         boolean posted = false;
         for (TileAdvCraftingBlock tile : this.quantumBlockEntities) {
             IGridNode node = tile.getActionableNode();

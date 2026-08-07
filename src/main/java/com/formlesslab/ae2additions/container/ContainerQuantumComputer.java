@@ -11,7 +11,7 @@ import com.formlesslab.ae2additions.api.QuantumComputerHost;
 import com.formlesslab.ae2additions.client.util.QuantumComputerEntry;
 import com.formlesslab.ae2additions.client.util.QuantumComputerList;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
-import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
+import com.formlesslab.ae2additions.me.cluster.ClusterAdvCraftingCPU;
 import net.minecraft.entity.player.InventoryPlayer;
 
 import java.util.*;
@@ -131,7 +131,7 @@ public class ContainerQuantumComputer extends ContainerCraftingCPU {
             boolean isRemainingCapacity = false;
 
             if (cpu instanceof AdvCraftingCPU advCpu) {
-                AdvCraftingCPUCluster cluster = advCpu.getParent();
+                ClusterAdvCraftingCPU cluster = advCpu.getParent();
                 if (cluster != null) {
                     quantumClusterId = cluster.getGuiClusterId();
                     isRemainingCapacity = cluster.getRemainingCapacityCPU() == advCpu;

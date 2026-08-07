@@ -9,7 +9,7 @@ import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadata;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadataList;
 import com.formlesslab.ae2additions.client.util.CraftingStatusCpuMetadataProvider;
 import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPU;
-import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
+import com.formlesslab.ae2additions.me.cluster.ClusterAdvCraftingCPU;
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -90,7 +90,7 @@ public abstract class MixinCraftingStatusMenu extends ContainerCraftingCPU imple
                 continue;
             }
 
-            AdvCraftingCPUCluster cluster = quantumCpu.getParent();
+            ClusterAdvCraftingCPU cluster = quantumCpu.getParent();
             if (cluster == null) {
                 continue;
             }

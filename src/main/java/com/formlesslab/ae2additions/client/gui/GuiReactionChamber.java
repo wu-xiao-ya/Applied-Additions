@@ -10,8 +10,8 @@ import ae2.client.gui.widgets.ProgressBar;
 import ae2.client.gui.widgets.ServerSettingToggleButton;
 import ae2.core.localization.ButtonToolTips;
 import com.formlesslab.ae2additions.container.ContainerReactionChamber;
+import com.formlesslab.ae2additions.init.ModNetworks;
 import com.formlesslab.ae2additions.network.CReactionChamberOutputSides;
-import com.formlesslab.ae2additions.network.ModNetwork;
 import com.formlesslab.ae2additions.tile.TileReactionChamber;
 import com.formlesslab.ae2additions.util.FluidStackRenderer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -85,7 +85,7 @@ public class GuiReactionChamber extends GuiUpgradeable<ContainerReactionChamber>
     }
 
     private void openOutputSides() {
-        ModNetwork.sendToServer(new CReactionChamberOutputSides());
+        ModNetworks.sendToServer(new CReactionChamberOutputSides());
     }
 
     private boolean drawTankTooltip(int mouseX, int mouseY, Rectangle tank, FluidStack fluid, int amount) {

@@ -1,17 +1,18 @@
-package com.formlesslab.ae2additions.recipe;
+package com.formlesslab.ae2additions.init;
 
 import ae2.util.inv.AppEngInternalInventory;
+import com.formlesslab.ae2additions.recipe.ReactionChamberRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidTank;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ReactionChamberRecipes {
+public final class ModRecipes {
 
     public static Set<ReactionChamberRecipe> REACTION_CHAMBER_RECIPES = new HashSet<>();
 
-    private ReactionChamberRecipes() {
+    private ModRecipes() {
     }
 
     public static ReactionChamberRecipe findRecipe(AppEngInternalInventory inventory, FluidTank inputTank, ItemStack output, FluidTank outputTank, int outputTankCapacity) {

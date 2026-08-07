@@ -3,8 +3,8 @@ package com.formlesslab.ae2additions.compat.jei;
 import com.formlesslab.ae2additions.Reference;
 import com.formlesslab.ae2additions.client.gui.GuiReactionChamber;
 import com.formlesslab.ae2additions.init.ModContent;
+import com.formlesslab.ae2additions.init.ModRecipes;
 import com.formlesslab.ae2additions.recipe.ReactionChamberRecipe;
-import com.formlesslab.ae2additions.recipe.ReactionChamberRecipes;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
@@ -25,7 +25,7 @@ public class ReactionChamberJeiPlugin implements IModPlugin {
     @Override
     public void register(IModRegistry registry) {
         registry.handleRecipes(ReactionChamberRecipe.class, ReactionChamberRecipeWrapper::new, REACTION_CHAMBER_UID);
-        registry.addRecipes(ReactionChamberRecipes.getRecipes(), REACTION_CHAMBER_UID);
+        registry.addRecipes(ModRecipes.getRecipes(), REACTION_CHAMBER_UID);
         registry.addRecipeCatalyst(new ItemStack(ModContent.REACTION_CHAMBER), REACTION_CHAMBER_UID);
         registry.addRecipeClickArea(GuiReactionChamber.class, 95, 43, 24, 16, REACTION_CHAMBER_UID);
     }

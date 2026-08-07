@@ -25,17 +25,17 @@ import java.util.UUID;
 public class AdvCraftingCPU extends CraftingCPUCluster {
     final UUID uniqueId;
     final long bytes;
-    private final AdvCraftingCPUCluster parent;
+    private final ClusterAdvCraftingCPU parent;
     private boolean markedForDeletion;
 
-    public AdvCraftingCPU(AdvCraftingCPUCluster parent, UUID uniqueId, long bytes) {
+    public AdvCraftingCPU(ClusterAdvCraftingCPU parent, UUID uniqueId, long bytes) {
         super(parent.getBoundsMin(), parent.getBoundsMax());
         this.parent = parent;
         this.uniqueId = uniqueId;
         this.bytes = bytes;
     }
 
-    AdvCraftingCPU(AdvCraftingCPUCluster parent, long bytes) {
+    AdvCraftingCPU(ClusterAdvCraftingCPU parent, long bytes) {
         this(parent, null, bytes);
     }
 
@@ -169,7 +169,7 @@ public class AdvCraftingCPU extends CraftingCPUCluster {
         this.craftingLogic.readFromNBT(data);
     }
 
-    public AdvCraftingCPUCluster getParent() {
+    public ClusterAdvCraftingCPU getParent() {
         return this.parent;
     }
 

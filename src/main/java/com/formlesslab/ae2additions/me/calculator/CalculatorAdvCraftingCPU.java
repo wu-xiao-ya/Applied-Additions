@@ -1,4 +1,4 @@
-package com.formlesslab.ae2additions.me.cluster;
+package com.formlesslab.ae2additions.me.calculator;
 
 import ae2.api.networking.IGrid;
 import ae2.api.networking.IGridNode;
@@ -6,13 +6,14 @@ import ae2.api.networking.events.GridCraftingCpuChange;
 import ae2.me.cluster.MBCalculator;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
 import com.formlesslab.ae2additions.init.Configurations;
+import com.formlesslab.ae2additions.me.cluster.ClusterAdvCraftingCPU;
 import com.formlesslab.ae2additions.tile.TileAdvCraftingBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock, AdvCraftingCPUCluster> {
-    public AdvCraftingCPUCalculator(TileAdvCraftingBlock tile) {
+public class CalculatorAdvCraftingCPU extends MBCalculator<TileAdvCraftingBlock, ClusterAdvCraftingCPU> {
+    public CalculatorAdvCraftingCPU(TileAdvCraftingBlock tile) {
         super(tile);
     }
 
@@ -27,8 +28,8 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
     }
 
     @Override
-    public AdvCraftingCPUCluster createCluster(World world, BlockPos min, BlockPos max) {
-        return new AdvCraftingCPUCluster(min, max);
+    public ClusterAdvCraftingCPU createCluster(World world, BlockPos min, BlockPos max) {
+        return new ClusterAdvCraftingCPU(min, max);
     }
 
     @Override
@@ -90,8 +91,8 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
     }
 
     @Override
-    public void updateBlockEntities(AdvCraftingCPUCluster cluster, World world, BlockPos min, BlockPos max) {
-        if (!(cluster instanceof AdvCraftingCPUCluster quantumCluster)) {
+    public void updateBlockEntities(ClusterAdvCraftingCPU cluster, World world, BlockPos min, BlockPos max) {
+        if (!(cluster instanceof ClusterAdvCraftingCPU quantumCluster)) {
             return;
         }
         for (BlockPos pos : BlockPos.getAllInBox(min, max)) {
@@ -112,7 +113,7 @@ public class AdvCraftingCPUCalculator extends MBCalculator<TileAdvCraftingBlock,
     }
 
     private static final class IteratorHelper {
-        private static void postFirstCpuChange(AdvCraftingCPUCluster cluster) {
+        private static void postFirstCpuChange(ClusterAdvCraftingCPU cluster) {
             var iterator = cluster.getQuantumBlockEntities();
             while (iterator.hasNext()) {
                 IGridNode node = iterator.next().getGridNode();

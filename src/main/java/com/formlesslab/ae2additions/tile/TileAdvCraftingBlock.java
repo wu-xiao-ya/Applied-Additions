@@ -20,14 +20,14 @@ import ae2.tile.grid.AENetworkedTile;
 import ae2.util.NullConfigManager;
 import ae2.util.Platform;
 import com.formlesslab.ae2additions.AppliedAdditions;
-import com.formlesslab.ae2additions.ModGuiHandler;
 import com.formlesslab.ae2additions.api.AAECraftingUnitType;
 import com.formlesslab.ae2additions.api.QuantumComputerHost;
 import com.formlesslab.ae2additions.block.quantum.BlockAAEAbstractCraftingUnit;
 import com.formlesslab.ae2additions.block.quantum.BlockAAECraftingUnit;
 import com.formlesslab.ae2additions.init.ModContent;
-import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCalculator;
-import com.formlesslab.ae2additions.me.cluster.AdvCraftingCPUCluster;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
+import com.formlesslab.ae2additions.me.calculator.CalculatorAdvCraftingCPU;
+import com.formlesslab.ae2additions.me.cluster.ClusterAdvCraftingCPU;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.Block;
@@ -42,12 +42,12 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
-public class TileAdvCraftingBlock extends AENetworkedTile implements IAEMultiBlock<AdvCraftingCPUCluster>, IPowerChannelState, IConfigurableObject, QuantumComputerHost {
+public class TileAdvCraftingBlock extends AENetworkedTile implements IAEMultiBlock<ClusterAdvCraftingCPU>, IPowerChannelState, IConfigurableObject, QuantumComputerHost {
 
-    private final AdvCraftingCPUCalculator calc = new AdvCraftingCPUCalculator(this);
+    private final CalculatorAdvCraftingCPU calc = new CalculatorAdvCraftingCPU(this);
     private NBTTagCompound previousState;
     private boolean coreBlock;
-    private AdvCraftingCPUCluster cluster;
+    private ClusterAdvCraftingCPU cluster;
     private ICraftingCPUTileEntity.ClientState clientState = ICraftingCPUTileEntity.ClientState.DEFAULT;
 
     public TileAdvCraftingBlock() {
@@ -147,7 +147,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile implements IAEMultiBlo
         }
     }
 
-    public void updateStatus(AdvCraftingCPUCluster cluster) {
+    public void updateStatus(ClusterAdvCraftingCPU cluster) {
         if (this.cluster != null && this.cluster != cluster) {
             this.cluster.breakCluster();
         }
@@ -207,7 +207,7 @@ public class TileAdvCraftingBlock extends AENetworkedTile implements IAEMultiBlo
     }
 
     @Override
-    public AdvCraftingCPUCluster getCluster() {
+    public ClusterAdvCraftingCPU getCluster() {
         return this.cluster;
     }
 

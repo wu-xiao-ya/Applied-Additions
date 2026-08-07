@@ -18,7 +18,7 @@ import ae2.tile.grid.AENetworkedTile;
 import ae2.util.ConfigManager;
 import ae2.util.inv.CombinedInternalInventory;
 import com.formlesslab.ae2additions.block.assembler.BlockAssemblerMatrixBase;
-import com.formlesslab.ae2additions.me.cluster.CalculatorAssemblerMatrix;
+import com.formlesslab.ae2additions.me.calculator.CalculatorAssemblerMatrix;
 import com.formlesslab.ae2additions.me.cluster.ClusterAssemblerMatrix;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;

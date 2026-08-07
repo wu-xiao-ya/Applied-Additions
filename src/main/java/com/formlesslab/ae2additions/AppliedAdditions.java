@@ -4,7 +4,8 @@ import com.formlesslab.ae2additions.client.model.AssemblerGlassModel;
 import com.formlesslab.ae2additions.client.render.QuantumComputerModelOverride;
 import com.formlesslab.ae2additions.client.render.WirelessHighlightHandler;
 import com.formlesslab.ae2additions.init.ModContent;
-import com.formlesslab.ae2additions.network.ModNetwork;
+import com.formlesslab.ae2additions.init.ModGuiHandler;
+import com.formlesslab.ae2additions.init.ModNetworks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -31,7 +32,7 @@ public class AppliedAdditions {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         ModContent.registerTileEntities();
-        ModNetwork.init();
+        ModNetworks.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new ModGuiHandler());
         if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
             AssemblerGlassModel.register();
